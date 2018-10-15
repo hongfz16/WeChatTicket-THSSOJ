@@ -38,7 +38,21 @@ class Activity(models.Model):
         try:
             return cls.objects.filter(status__gte=0)
         except:
-            raise LogicError('get error when status')
+            raise LogicError('get activity by status error!')
+
+    @classmethod
+    def get_status_published(cls):
+        try:
+            return cls.objects.filter(status=cls.STATUS_PUBLISHED)
+        except:
+            raise LogicError('get activity by status=1 error!')
+
+    @classmethod
+    def get_by_id(cls, id):
+        try:
+            return cls.objects.get(id=id)
+        except:
+            raise LogicError('get activity  by id')
 
     @classmethod
     def remove_by_id(cls, id):
@@ -58,3 +72,10 @@ class Ticket(models.Model):
     STATUS_CANCELLED = 0
     STATUS_VALID = 1
     STATUS_USED = 2
+
+    @classmethod
+    def get_by_activity(cls, act):
+        try:
+            return cls.objects.filter(activity=act)
+        except:
+            raise LogicError('get ticket by activity error!')
