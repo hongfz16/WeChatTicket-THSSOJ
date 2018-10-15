@@ -11,10 +11,13 @@ class UserBind(APIView):
         input: self.input['student_id'] and self.input['password']
         raise: ValidateError when validating failed
         """
-        raise NotImplementedError('You should implement UserBind.validate_user method')
+        if len(self.input['student_id']) != 10:
+            raise ValidateError('Invialidated student id!')
+        # raise NotImplementedError('You should implement UserBind.validate_user method')
 
     def get(self):
         self.check_input('openid')
+        # print(self.input['openid'])
         return User.get_by_openid(self.input['openid']).student_id
 
     def post(self):
