@@ -33,6 +33,21 @@ class Activity(models.Model):
     STATUS_SAVED = 0
     STATUS_PUBLISHED = 1
 
+    @classmethod
+    def get_nonegtive_status(cls):
+        try:
+            return cls.objects.filter(status__gte=0)
+        except:
+            raise LogicError('get error when status')
+
+    @classmethod
+    def remove_by_id(cls, id):
+        try:
+            cls.objects.get(id=id).delete()
+        except:
+            raise LogicError('delete activity error!')
+
+
 
 class Ticket(models.Model):
     student_id = models.CharField(max_length=32, db_index=True)
