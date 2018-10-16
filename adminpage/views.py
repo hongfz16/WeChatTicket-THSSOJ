@@ -54,9 +54,9 @@ class logoutPage(APIView):
     def post(self):
         print("logoutPage post")
         # print(self.request.user)
-        if not self.request.user.is_authenticated():
-            raise LogicError('logout error!')
         auth.logout(self.request)
+        if self.request.user.is_authenticated():
+            raise LogicError('logout error!')
 
 class activityList(APIView):
 
