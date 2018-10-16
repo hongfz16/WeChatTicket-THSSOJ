@@ -304,4 +304,3 @@ class activityMenu(APIView):
         except:
             raise LogicError('add Menu failed!')
         return
-
