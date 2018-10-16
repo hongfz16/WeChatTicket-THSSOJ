@@ -100,12 +100,15 @@ class activityCreate(APIView):
         if self.request.user.is_authenticated():
             self.check_input('name', 'key', 'place', 'description', 'picUrl', 'startTime',
                              'endTime', 'bookStart', 'bookEnd', 'totalTickets', 'status')
-            print("self.input['bookEnd']="+str(self.input['bookEnd']))
-            print("self.input['bookStart']=" + str(self.input['bookStart']))
+            # print("self.input['endTime']="+str(self.input['endTime']))
+            # print("self.input['startTime']=" + str(self.input['startTime']))
             if int(self.input['bookEnd']) < int(self.input['bookStart']):
                 raise InputError("bookEnd < bookStart")
             if int(self.input['endTime']) < int(self.input['startTime']):
                 raise InputError("endTime < startTime")
+            if int(self.input['totalTickets']) < 0:
+                raise InputError("totalTickets < 0")
+            # if len(self.input['key']) >
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                                      description=self.input['description'], pic_url=self.input['picUrl'],
@@ -113,9 +116,9 @@ class activityCreate(APIView):
                                                      end_time=datetime.fromtimestamp(float(self.input['endTime'])),
                                                      book_start=datetime.fromtimestamp(float(self.input['bookStart'])),
                                                      book_end=datetime.fromtimestamp(float(self.input['bookEnd'])),
-                                                     total_tickets=self.input['totalTickets'],
-                                                     remain_tickets=self.input['totalTickets'],
-                                                     status=self.input['status'])
+                                                     total_tickets=int(self.input['totalTickets']),
+                                                     remain_tickets=int(self.input['totalTickets']),
+                                                     status=int(self.input['status']))
                 return new_activity.id
             except Exception as e:
                 print("activityCreate fail!")
