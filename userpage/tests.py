@@ -247,7 +247,7 @@ class TestUActivity(TestCase):
         self.assertEqual(js['place'], obj.place)
         self.assertEqual(js['bookStart'], int(obj.book_start.timestamp()))
         self.assertEqual(js['bookEnd'], int(obj.book_end.timestamp()))
-        self.assertEqual(js['totalTickets'], obj.tot_tickets)
+        self.assertEqual(js['totalTickets'], obj.total_tickets)
         self.assertEqual(js['picUrl'], obj.pic_url)
         self.assertEqual(js['remainTickets'], obj.remain_tickets)
         self.assertAlmostEqual(js['currentTime'], curTime, delta = 5)
@@ -350,6 +350,7 @@ class TestUTicket(TestCase):
                              'openid': '',
                              'ticket': '123'
                          })
+        # print('why this work'+response.json()['data'])
         self.assertNotEqual(response.json()['code'], 0)
 
         response = c.get(self.url,
@@ -397,6 +398,7 @@ class TestUTicket(TestCase):
         js = response.json()['data']
         objT = Ticket.objects.get(unique_id = '123')
         objA = objT.activity
+        #print(type(js))
         self.assertEqual(js['activityName'], objA.name)
         self.assertEqual(js['place'], objA.place)
         self.assertEqual(js['activityKey'], objA.key)

@@ -599,7 +599,7 @@ class CheckinTest(TestCase):
                 })
         self.assertEqual(response.json()['code'], 0)
         postjson = {
-            'actId': Activity.objects.get(name='testac1'),
+            'actId': Activity.objects.get(name='testac1').id,
             'studentId': '1234567890'
         }
         logoutresponse = c.post(self.url, postjson)
@@ -610,5 +610,6 @@ class CheckinTest(TestCase):
                    'password': 'thisispassword'
                })
         succresponse = c.post(self.url, postjson)
+
         self.assertEqual(succresponse.json()['code'], 0)
         self.assertEqual(succresponse.json()['data']['studentId'], '1234567890')
