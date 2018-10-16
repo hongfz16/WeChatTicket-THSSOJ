@@ -1,6 +1,7 @@
 # Create your tests here.
 
 from datetime import datetime
+from django.utils import timezone
 from django.test import TestCase
 from django.test import Client
 from wechat.models import User, Activity, Ticket
@@ -234,7 +235,7 @@ class TestUActivity(TestCase):
 
     def testSuccess(self):
         c = Client()
-        curTime = int(datetime.now().timestamp())
+        curTime = int(timezone.now().timestamp())
         response = c.get(self.url,
                          {
                             'id': 1
@@ -386,7 +387,7 @@ class TestUTicket(TestCase):
 
     def testSuccess(self):
         c = Client()
-        curTime = int(datetime.now().timestamp())
+        curTime = int(timezone.now().timestamp())
         response = c.get(self.url,
                          {
                              'openid': 'ycdfwzy',

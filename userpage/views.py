@@ -3,6 +3,7 @@ from codex.baseview import APIView
 from wechat.models import User, Activity, Ticket
 from codex.baseerror import *
 import datetime
+from django.utils import timezone
 
 
 class UserBind(APIView):
@@ -46,7 +47,7 @@ class ActivityDetail(APIView):
                     activity_detail['totalTickets']=target_activity.total_tickets
                     activity_detail['picUrl'] = target_activity.pic_url
                     activity_detail['remainTickets'] = target_activity.remain_tickets
-                    activity_detail['currentTime'] = int(datetime.datetime.now().timestamp())
+                    activity_detail['currentTime'] = int(timezone.now().timestamp())
                     return activity_detail
                 else:
                     raise BaseError(code=4, msg='activity not published')
@@ -70,7 +71,7 @@ class TicketDetail(APIView):
                     ticket_detail['uniqueId'] =ticket.unique_id
                     ticket_detail['startTime'] = int(ticket.activity.start_time.timestamp())
                     ticket_detail['endTime'] = int(ticket.activity.end_time.timestamp())
-                    ticket_detail['currentTime'] = int(datetime.datetime.now().timestamp())
+                    ticket_detail['currentTime'] = int(timezone.now().timestamp())
                     ticket_detail['status'] = ticket.status
                     return ticket_detail
                 else:

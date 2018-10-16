@@ -10,7 +10,7 @@ from django.contrib import auth
 from wechat.models import User, Activity, Ticket
 from codex.baseerror import *
 from WeChatTicket.settings import get_url
-import datetime
+from django.utils import timezone
 import uuid
 import base64
 import os
@@ -19,7 +19,7 @@ import os
 
 
 def getCurrentTime():
-    return int( datetime.now().timestamp() )
+    return int( timezone.now().timestamp() )
 
 
 def get_index(id, buttons):
@@ -56,7 +56,7 @@ class logoutPage(APIView):
 class activityList(APIView):
 
     def get(self):
-        if self.request.auth.is_authenticated():
+        if self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         try:
@@ -85,7 +85,7 @@ class activityList(APIView):
 
 class activityDelete(APIView):
     def post(self):
-        if self.request.auth.is_authenticated():
+        if self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id')
@@ -104,10 +104,10 @@ class activityCreate(APIView):
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                         description=self.input['description'], pic_url=self.input['picUrl'],
-                                        start_time=datetime.datetime.fromtimestamp(self.input['startTime']),
-                                        end_time=datetime.datetime.fromtimestamp(self.input['endTime']),
-                                        book_start=datetime.datetime.fromtimestamp(self.input['bookStart']),
-                                        book_end=datetime.datetime.fromtimestamp(self.input['bookEnd']),
+                                        start_time=datetime.fromtimestamp(self.input['startTime']),
+                                        end_time=datetime.fromtimestamp(self.input['endTime']),
+                                        book_start=datetime.fromtimestamp(self.input['bookStart']),
+                                        book_end=datetime.fromtimestamp(self.input['bookEnd']),
                                         total_tickets=self.input['totalTickets'],
                                         remain_tickets=self.input['totalTickets'],
                                         status=self.input['status'])
@@ -140,7 +140,7 @@ class imageUpload(APIView):
 
 class activityDetail(APIView):
     def get(self):
-        if self.request.auth.is_authenticated():
+        if self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id')
@@ -175,7 +175,7 @@ class activityDetail(APIView):
         return ret
 
     def post(self):
-        if self.request.auth.is_authenticated():
+        if self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id', 'name', 'place', 'description',
@@ -264,7 +264,7 @@ class activityCheckin(APIView):
 
 class activityMenu(APIView):
     def get(self):
-        if self.request.auth.is_authenticated():
+        if self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         try:
@@ -284,7 +284,7 @@ class activityMenu(APIView):
         return ret
 
     def post(self):
-        if self.request.auth.is_authenticated():
+        if self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id')

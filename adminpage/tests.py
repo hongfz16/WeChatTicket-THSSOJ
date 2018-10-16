@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from wechat.models import Activity
 from wechat.models import User as wechatuser
 from datetime import datetime
+from django.utils import timezone
 import base64
 
 class LoginTest(TestCase):
@@ -94,10 +95,10 @@ class LogoutTest(TestCase):
 
 class ActivityListTest(TestCase):
     def setUp(self):
-        self.starttime = datetime.now()
-        self.endtime = datetime.now()
-        self.bookstart = datetime.now()
-        self.bookend = datetime.now()
+        self.starttime = timezone.now()
+        self.endtime = timezone.now()
+        self.bookstart = timezone.now()
+        self.bookend = timezone.now()
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
         Activity.objects.create(name = 'testac1',
@@ -147,15 +148,15 @@ class ActivityListTest(TestCase):
             self.assertEqual(activity['place'], 'testplace'+str(i+1))
             self.assertEqual(activity['bookStart'], self.bookstart.timestamp())
             self.assertEqual(activity['bookEnd'], self.bookend.timestamp())
-            self.assertAlmostEqual(activity['currentTime'], datetime.now().timestamp(), delta = 5)
+            self.assertAlmostEqual(activity['currentTime'], timezone.now().timestamp(), delta = 5)
             self.assertEqual(activity['status'], i)
 
 class ActivityDeleteTest(TestCase):
     def setUp(self):
-        self.starttime = datetime.now()
-        self.endtime = datetime.now()
-        self.bookstart = datetime.now()
-        self.bookend = datetime.now()
+        self.starttime = timezone.now()
+        self.endtime = timezone.now()
+        self.bookstart = timezone.now()
+        self.bookend = timezone.now()
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
         Activity.objects.create(name = 'testac1',
@@ -234,10 +235,10 @@ class ActivityCreateTest(TestCase):
         self.url = '/api/a/activity/create'
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
-        # self.starttime = int(datetime.now().timestamp())
-        # self.endtime = int(datetime.now().timestamp())
-        # self.bookstart = int(datetime.now().timestamp())
-        # self.bookend = int(datetime.now().timestamp())
+        # self.starttime = int(timezone.now().timestamp())
+        # self.endtime = int(timezone.now().timestamp())
+        # self.bookstart = int(timezone.now().timestamp())
+        # self.bookend = int(timezone.now().timestamp())
 
         self.starttime = int(datetime(1999, 9, 11, 2, 31, 0).timestamp())
         self.endtime = int(datetime(2000, 11, 8, 23, 59, 59).timestamp())
@@ -390,10 +391,10 @@ class ImageUploadTest(TestCase):
 class ActivityDetailTest(TestCase):
     def setUp(self):
         self.url = '/api/a/activity/detail'
-        self.starttime = datetime.now()
-        self.endtime = datetime.now()
-        self.bookstart = datetime.now()
-        self.bookend = datetime.now()
+        self.starttime = timezone.now()
+        self.endtime = timezone.now()
+        self.bookstart = timezone.now()
+        self.bookend = timezone.now()
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
         Activity.objects.create(name = 'testac1',
@@ -453,7 +454,7 @@ class ActivityDetailTest(TestCase):
             self.assertEqual(activity['totalTickets'], self.tickets[i])
             self.assertEqual(activity['picUrl'], 'http://thisisaurl.com')
             self.assertEqual(activity['usedTickets'], self.tickets[i]-1)
-            self.assertAlmostEqual(activity['currentTime'], datetime.now().timestamp(), delta = 5)
+            self.assertAlmostEqual(activity['currentTime'], timezone.now().timestamp(), delta = 5)
             self.assertEqual(activity['status'], i)
         c.post('/api/a/logout',{})
 
@@ -488,10 +489,10 @@ class ActivityMenuTest(TestCase):
         self.url = '/api/a/activity/menu'
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
-        self.starttime = datetime.now()
-        self.endtime = datetime.now()
-        self.bookstart = datetime.now()
-        self.bookend = datetime.now()
+        self.starttime = timezone.now()
+        self.endtime = timezone.now()
+        self.bookstart = timezone.now()
+        self.bookend = timezone.now()
         Activity.objects.create(name = 'testac1',
                                 key = 'thisisamaxlengthof64key',
                                 description = 'testdesc1',
@@ -540,10 +541,10 @@ class CheckinTest(TestCase):
         self.url = '/api/a/activity/checkin'
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
-        self.starttime = datetime.now()
-        self.endtime = datetime.now()
-        self.bookstart = datetime.now()
-        self.bookend = datetime.now()
+        self.starttime = timezone.now()
+        self.endtime = timezone.now()
+        self.bookstart = timezone.now()
+        self.bookend = timezone.now()
         Activity.objects.create(name = 'testac1',
                                 key = 'thisisamaxlengthof64key',
                                 description = 'testdesc1',
