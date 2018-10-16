@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.test import Client
 from django.contrib.auth import get_user_model
-from wechat.models import Activity
+from wechat.models import Activity, Ticket
 from wechat.models import User as wechatuser
 from datetime import datetime
 from django.utils import timezone
@@ -567,6 +567,10 @@ class CheckinTest(TestCase):
                                 remain_tickets = 99
                                 )
         wechatuser.objects.create(open_id = 'ycdfwzy')
+        Ticket.objects.create(student_id = '1234567890',
+                              unique_id = 'thisisauniqueid',
+                              activity = Activity.objects.get(name='testac1'),
+                              status = 1)
 
     def testPost(self):
         c = Client()
