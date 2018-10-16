@@ -155,7 +155,7 @@ class activityDetail(APIView):
             if res.end_time != self.input['endTime']:
                 raise LogicError('can\'t  modify end_time')
 
-        if curTime > res['totalTickets']:
+        if curTime > res.totalTickets:
             if res.total_tickets != self.input['totalTickets']:
                 raise LogicError('can\'t  modify total_tickets')
 
@@ -172,9 +172,11 @@ class activityDetail(APIView):
         res.save()
         return
 
+
 class activityCheckin(APIView):
     def post(self):
         pass
+
 
 class activityMenu(APIView):
     def get(self):
