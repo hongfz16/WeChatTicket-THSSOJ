@@ -7,6 +7,7 @@ from wechat.models import User as wechatuser
 from datetime import datetime
 from django.utils import timezone
 import base64
+from copy import deepcopy
 
 class LoginTest(TestCase):
     def setUp(self):
@@ -319,48 +320,48 @@ class ActivityCreateTest(TestCase):
             'status': 0
         }
         # endtime < starttime: should return false
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['startTime'] = self.endtime
         postjson2['endTime'] = self.starttime
         response2 = c.post(self.url, postjson2)
         self.assertNotEqual(response2.json()['code'], 0)
         # bookend < bookstart: should return false
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['bookStart'] = self.bookend
         postjson2['bookEnd'] = self.bookstart
         response2 = c.post(self.url, postjson2)
         self.assertNotEqual(response2.json()['code'], 0)
         # totalTickets < 0: should return false
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['totalTickets'] = -1
         response2 = c.post(self.url, postjson2)
         self.assertNotEqual(response2.json()['code'], 0)
         # length of [key] exceed
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['key'] = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         response2 = c.post(self.url, postjson2)
         self.assertNotEqual(response2.json()['code'], 0)
         # timestamp test
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['startTime'] = 100000
         postjson2['endTime'] = 100000000.1415926
         response2 = c.post(self.url, postjson2)
         self.assertNotEqual(response2.json()['code'], 0)
         # invalid value of status field
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['status'] = 2
         response2 = c.post(self.url, postjson2)
         self.assertNotEqual(response2.json()['code'], 0)
         # multiple language test
             # 1
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['name'] = '讲中文'
         postjson2['description'] = '讲中文'
         response2 = c.post(self.url, postjson2)
         self.assertEqual(response2.json()['code'], 0)
         self.assertEqual(response2.json()['data'], 3)
             # 2
-        postjson2 = postjsonbs
+        postjson2 = deepcopy(postjsonbs)
         postjson2['name'] = '日本語で話す'
         postjson2['description'] = '日本語で話す'
         response2 = c.post(self.url, postjson2)
