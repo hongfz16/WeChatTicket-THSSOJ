@@ -14,6 +14,8 @@ from django.utils import timezone
 import uuid
 import base64
 import os
+import json
+import pickle
 
 # Create your views here.
 
@@ -32,15 +34,17 @@ def get_index(id, buttons):
 
 class loginPage(APIView):
     def get(self):
+        print("loginPage get")
         if self.request.user.is_authenticated():
-            pass
+            return ''
         else:
             raise ValidateError('user not logged')
     def post(self):
+        print("loginPage post")
         self.check_input('username', 'password')
         usr_name=self.input['username']
         pass_wrd=self.input['password']
-        user=auth.authenticate(username=usr_name, password=pass_wrd, request = self.request)
+        user=auth.authenticate(username=usr_name, password=pass_wrd, request=self.request)
         if user is not None:
             auth.login(self.request, user)
         else:
@@ -48,12 +52,17 @@ class loginPage(APIView):
 
 class logoutPage(APIView):
     def post(self):
+        print("logoutPage post")
+        # print(self.request.user)
+        if not self.request.user.is_authenticated():
+            raise LogicError('logout error!')
         auth.logout(self.request)
 
 class activityList(APIView):
 
     def get(self):
-        if self.request.user.is_authenticated():
+        print("activityList get")
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         try:
@@ -67,22 +76,22 @@ class activityList(APIView):
             re['id'] = act.id
             re['name'] = act.name
             re['description'] = act.description
-            re['startTime'] = act.start_time
-            re['endTime'] = act.end_time
+            re['startTime'] = int(act.start_time.timestamp())
+            re['endTime'] = int(act.end_time.timestamp())
             re['place'] = act.place
-            re['bookStart'] = act.book_start
-            re['bookEnd'] = act.book_end
+            re['bookStart'] = int(act.book_start.timestamp())
+            re['bookEnd'] = int(act.book_end.timestamp())
             re['currentTime'] = getCurrentTime()
-            if act['status'] == Activity.STATUS_PUBLISHED:
+            if act.status == Activity.STATUS_PUBLISHED:
                 re['status'] = 1
             else: re['status'] = 0
             ret.append(re)
-
         return ret
 
 class activityDelete(APIView):
     def post(self):
-        if self.request.user.is_authenticated():
+        print("activityDelete post")
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id')
@@ -90,41 +99,52 @@ class activityDelete(APIView):
             Activity.remove_by_id(self.input['id'])
         except:
             raise LogicError('delete activity error!')
-        return
 
 
 class activityCreate(APIView):
     def post(self):
+        print("activityCreate post")
         if self.request.user.is_authenticated():
             self.check_input('name', 'key', 'place', 'description', 'picUrl', 'startTime',
                              'endTime', 'bookStart', 'bookEnd', 'totalTickets', 'status')
+            if int(self.input['bookEnd']) < int(self.input['bookStart']):
+                raise InputError("bookEnd < bookStart")
+            if int(self.input['endTime']) < int(self.input['startTime']):
+                raise InputError("endTime < startTime")
+            if int(self.input['totalTickets']) < 0:
+                raise InputError("totalTickets < 0")
+            # if len(self.input['key']) >
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
-                                        description=self.input['description'], pic_url=self.input['picUrl'],
-                                        start_time=datetime.fromtimestamp(self.input['startTime']),
-                                        end_time=datetime.fromtimestamp(self.input['endTime']),
-                                        book_start=datetime.fromtimestamp(self.input['bookStart']),
-                                        book_end=datetime.fromtimestamp(self.input['bookEnd']),
-                                        total_tickets=self.input['totalTickets'],
-                                        remain_tickets=self.input['totalTickets'],
-                                        status=self.input['status'])
+                                                     description=self.input['description'], pic_url=self.input['picUrl'],
+                                                     start_time=datetime.fromtimestamp(float(self.input['startTime'])),
+                                                     end_time=datetime.fromtimestamp(float(self.input['endTime'])),
+                                                     book_start=datetime.fromtimestamp(float(self.input['bookStart'])),
+                                                     book_end=datetime.fromtimestamp(float(self.input['bookEnd'])),
+                                                     total_tickets=int(self.input['totalTickets']),
+                                                     remain_tickets=int(self.input['totalTickets']),
+                                                     status=int(self.input['status']))
                 return new_activity.id
-            except:
-                raise InputError('error when write new activity item')
+            except Exception as e:
+                print("activityCreate fail!")
+                raise BaseError(4, str(e))
+                # raise InputError('error when write new activity item')
         else:
             raise ValidateError('user not logged')
 
 class imageUpload(APIView):
     def post(self):
+        print("imageUpload post")
         if self.request.user.is_authenticated():
             self.check_input('image')
-            ori_content=base64.b64decode(self.input['image'])
+            ori_content=self.input['image']
+
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
             if not os.path.exists(tgt_path):
                 try:
                     os.makedirs(tgt_path)
-                    image_path=tgt_path+'/'+uuid.uuid1()+'.png'
+                    image_path=tgt_path+'/'+str(uuid.uuid1())+'.png'
                     img_file=open(image_path, 'w')
                     img_file.write(ori_content)
                     img_file.close()
@@ -137,23 +157,25 @@ class imageUpload(APIView):
 
 class activityDetail(APIView):
     def get(self):
-        if self.request.user.is_authenticated():
+        print("activityDetail get")
+        if not self.request.user.is_authenticated():
+            # print("detail offline!")
             raise LogicError('Your are offline!')
 
         self.check_input('id')
         try:
-            res = Activity.get_by_id(self.input['id'])
+            res = Activity.get_by_id(int(self.input['id']))
         except:
             raise LogicError("get activity by id")
         ret = {}
         ret['name'] = res.name
         ret['key'] = res.key
         ret['description'] = res.description
-        ret['startTime'] = res.start_time
-        ret['endTime'] = res.end_time
+        ret['startTime'] = int(res.start_time.timestamp())
+        ret['endTime'] = int(res.end_time.timestamp())
         ret['place'] = res.place
-        ret['bookStart'] = res.book_start
-        ret['bookEnd'] = res.book_end
+        ret['bookStart'] = int(res.book_start.timestamp())
+        ret['bookEnd'] = int(res.book_end.timestamp())
         ret['totalTickets'] = res.total_tickets
         ret['picUrl'] = res.pic_url
         ret['bookedTickets'] = res.total_tickets-res.remain_tickets
@@ -172,14 +194,15 @@ class activityDetail(APIView):
         return ret
 
     def post(self):
-        if self.request.user.is_authenticated():
+        print("activityDetail post")
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id', 'name', 'place', 'description',
                          'picUrl', 'startTime', 'endTime', 'bookStart',
                          'bookEnd', 'totalTickets', 'status')
         try:
-            res = Activity.get_by_id(self.input['id'])
+            res = Activity.get_by_id(int(self.input['id']))
         except:
             raise LogicError("get activity by id error!")
 
@@ -188,42 +211,43 @@ class activityDetail(APIView):
                 raise LogicError('can\'t  modify name')
             if res.place != self.input['place']:
                 raise LogicError('can\'t  modify place')
-            if res.book_start != self.input['bookStart']:
+            # print("self.input['bookStart="+str(self.input['bookStart']))
+            # print("res.book_start="+str(res.book_start))
+            if int(res.book_start.timestamp()) != int(float(self.input['bookStart'])):
                 raise LogicError('can\'t  modify book_start')
-            if res.status != self.input['status'] and self.input['status'] == 0:
+            if res.status != int(self.input['status']) and int(self.input['status']) == 0:
                 raise LogicError('can\'t  modify status')
 
         curTime = getCurrentTime()
-        if curTime > res.start_time:
-            if res.book_end != self.input['bookEnd']:
+        if curTime > int(res.start_time.timestamp()):
+            if int(res.book_end.timestamp()) != int(float(self.input['bookEnd'])):
                 raise LogicError('can\'t  modify book_end')
-
-        if curTime > res.end_time:
-            if res.start_time != self.input['startTime']:
-                raise LogicError('can\'t  modify start_time')
-            if res.end_time != self.input['endTime']:
-                raise LogicError('can\'t  modify end_time')
-
-        if curTime > res.totalTickets:
-            if res.total_tickets != self.input['totalTickets']:
+            if res.total_tickets != int(self.input['totalTickets']):
                 raise LogicError('can\'t  modify total_tickets')
+
+        if curTime > int(res.end_time.timestamp()):
+            if int(res.start_time.timestamp()) != int(float(self.input['startTime'])):
+                raise LogicError('can\'t  modify start_time')
+            if int(res.end_time.timestamp()) != int(float(self.input['endTime'])):
+                raise LogicError('can\'t  modify end_time')
 
         res.name = self.input['name']
         res.place = self.input['place']
         res.description = self.input['description']
         res.pic_url = self.input['picUrl']
-        res.start_time = self.input['startTime']
-        res.end_time = self.input['endTime']
-        res.book_start = self.input['bookStart']
-        res.book_end = self.input['bookEnd']
-        res.total_tickets = self.input['totalTickets']
-        res.status = self.input['status']
+        res.start_time = datetime.fromtimestamp(float(self.input['startTime']))
+        res.end_time = datetime.fromtimestamp(float(self.input['endTime']))
+        res.book_start = datetime.fromtimestamp(float(self.input['bookStart']))
+        res.book_end = datetime.fromtimestamp(float(self.input['bookEnd']))
+        res.total_tickets = int(self.input['totalTickets'])
+        res.status = int(self.input['status'])
         res.save()
         return
 
 
 class activityCheckin(APIView):
     def post(self):
+        print("activityCheckin get")
         ticket_info={}
         if self.request.user.is_authenticated():
             self.check_input('actId')
@@ -261,7 +285,8 @@ class activityCheckin(APIView):
 
 class activityMenu(APIView):
     def get(self):
-        if self.request.user.is_authenticated():
+        print("activityMenu get")
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         try:
@@ -281,13 +306,26 @@ class activityMenu(APIView):
         return ret
 
     def post(self):
-        if self.request.user.is_authenticated():
+        print("activityMenu post")
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
-        self.check_input('id')
-        try:
-            CustomWeChatView.update_menu(self.input['id'])
-        except:
-            raise LogicError('add Menu failed!')
-        return
+        if isinstance(self.input, list):
+            acts = self.input
+        elif isinstance(self.input['idarr'], str):
+            acts = [int(self.input['idarr']), ]
+        else:
+            raise LogicError('logical error!')
 
+        try:
+            res = []
+            for act in acts:
+                res.append(Activity.get_by_id(int(act)))
+        except:
+            raise LogicError('get activity by id error!')
+
+        try:
+            CustomWeChatView.update_menu(res)
+        except:
+            raise LogicError('update Menu failed!')
+        return
