@@ -325,6 +325,7 @@ class activityMenu(APIView):
             raise LogicError('get activity by id error!')
 
         try:
+            print(res)
             CustomWeChatView.update_menu(res)
         except:
             raise LogicError('update Menu failed!')
