@@ -35,7 +35,7 @@ class loginPage(APIView):
     def get(self):
         print("loginPage get")
         if self.request.user.is_authenticated():
-            pass
+            return ''
         else:
             raise ValidateError('user not logged')
     def post(self):
@@ -53,9 +53,10 @@ class logoutPage(APIView):
     def post(self):
         print("logoutPage post")
         print(self.request.user)
-        auth.logout(self.request)
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
             raise LogicError('logout error!')
+        auth.logout(self.request)
+
 
 class activityList(APIView):
 
@@ -136,15 +137,14 @@ class imageUpload(APIView):
         print("imageUpload post")
         if self.request.user.is_authenticated():
             self.check_input('image')
-            print(type(self.input['image']))
-            ori_content=base64.b64decode(self.input['image'])
+            ori_content=self.input['image']
 
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
             if not os.path.exists(tgt_path):
                 try:
                     os.makedirs(tgt_path)
-                    image_path=tgt_path+'/'+uuid.uuid1()+'.png'
+                    image_path=tgt_path+'/'+str(uuid.uuid1())+'.png'
                     img_file=open(image_path, 'w')
                     img_file.write(ori_content)
                     img_file.close()
