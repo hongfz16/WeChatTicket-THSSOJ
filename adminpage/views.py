@@ -15,6 +15,7 @@ import uuid
 import base64
 import os
 import json
+import pickle
 
 # Create your views here.
 
@@ -310,16 +311,22 @@ class activityMenu(APIView):
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
-        self.check_input('idarr')
-        print(type(self.input['idarr']))
-        print("self.input['idarr']="+str(self.input['idarr']))
+        if isinstance(self.input, list):
+            acts = self.input
+        elif isinstance(self.input['idarr'], str):
+            acts = [int(self.input['idarr']), ]
+        else:
+            raise LogicError('logical error!')
+
         try:
-            res = Activity.get_by_id(int(self.input['idarr']))
+            res = []
+            for act in acts:
+                res.append(Activity.get_by_id(int(act)))
         except:
             raise LogicError('get activity by id error!')
 
         try:
-            CustomWeChatView.update_menu([res, ])
+            CustomWeChatView.update_menu(res)
         except:
             raise LogicError('update Menu failed!')
         return
