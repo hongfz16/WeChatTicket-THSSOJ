@@ -255,7 +255,7 @@ class TestUActivity(TestCase):
 class TestUTicket(TestCase):
     def setUp(self):
         self.url = '/api/u/ticket/detail'
-        User.objects.create(open_id = 'ycdfwzy')
+        User.objects.create(open_id = 'ycdfwzy', student_id = '1234567890')
     # act 1
         Activity.objects.create(
             name = 'ycdfwzy',
@@ -315,7 +315,7 @@ class TestUTicket(TestCase):
         )
     # ticket2: success, a = 2, s = 0
         Ticket.objects.create(
-            student_id = '1234567890',
+            student_id = 'x234567890',
             unique_id = 'xyz',
             activity = Activity.objects.get(id = self.id2),
             status = 0
@@ -329,7 +329,7 @@ class TestUTicket(TestCase):
         )
     # ticket4: success, a = 1, s = 1
         Ticket.objects.create(
-            student_id = '1234567890',
+            student_id = 'x234567890',
             unique_id = 'dde',
             activity = Activity.objects.get(id = self.id1),
             status = 1
@@ -384,6 +384,12 @@ class TestUTicket(TestCase):
                          {
                              'openid': 'ycdfwzy',
                              'ticket': 123
+                         })
+        self.assertNotEqual(response.json()['code'], 0)
+        response = c.get(self.url,
+                         {
+                             'openid': 'ycdfwzy',
+                             'ticket': 'dde'
                          })
         self.assertNotEqual(response.json()['code'], 0)
 
