@@ -113,6 +113,10 @@ class activityCreate(APIView):
                 raise InputError("endTime < startTime")
             if int(self.input['totalTickets']) < 0:
                 raise InputError("totalTickets < 0")
+            if len(self.input['key'])>64:
+                raise InputError('key is too long')
+            if int(self.input['status'])<-1 or int(self.input['status'])>1:
+                raise InputError('status error')
             # if len(self.input['key']) >
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
