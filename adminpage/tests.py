@@ -8,6 +8,7 @@ from datetime import datetime
 from django.utils import timezone
 import base64
 from copy import deepcopy
+import pickle
 
 class LoginTest(TestCase):
     def setUp(self):
@@ -549,14 +550,15 @@ class ActivityMenuTest(TestCase):
     def testPost(self):
         c = Client()
         id1 = Activity.objects.get(name='testac1').id
-        logoutresponse = c.post(self.url, {'idarr': [id1, id1]})
+        idarr = [id1,]
+        logoutresponse = c.post(self.url, {'idarr': id1})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
                {
                    'username': 'admin',
                    'password': 'thisispassword'
                })
-        succresponse = c.post(self.url, {'idarr': [id1, id1]})
+        succresponse = c.post(self.url, {'idarr': id1})
         self.assertEqual(succresponse.json()['code'], 0)
 
 class CheckinTest(TestCase):
