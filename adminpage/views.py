@@ -32,11 +32,13 @@ def get_index(id, buttons):
 
 class loginPage(APIView):
     def get(self):
+        print("loginPage get")
         if self.request.user.is_authenticated():
             pass
         else:
             raise ValidateError('user not logged')
     def post(self):
+        print("loginPage post")
         self.check_input('username', 'password')
         usr_name=self.input['username']
         pass_wrd=self.input['password']
@@ -48,6 +50,7 @@ class loginPage(APIView):
 
 class logoutPage(APIView):
     def post(self):
+        print("logoutPage post")
         if self.request.user.is_authenticated():
             auth.logout(self.request)
         else:
@@ -56,6 +59,7 @@ class logoutPage(APIView):
 class activityList(APIView):
 
     def get(self):
+        print("activityList get")
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
@@ -68,23 +72,24 @@ class activityList(APIView):
         for act in actived_activities:
             re = {}
             re['id'] = act.id
+            print(re['id'])
             re['name'] = act.name
             re['description'] = act.description
-            re['startTime'] = act.start_time
-            re['endTime'] = act.end_time
+            re['startTime'] = int(act.start_time.timestamp())
+            re['endTime'] = int(act.end_time.timestamp())
             re['place'] = act.place
-            re['bookStart'] = act.book_start
-            re['bookEnd'] = act.book_end
+            re['bookStart'] = int(act.book_start.timestamp())
+            re['bookEnd'] = int(act.book_end.timestamp())
             re['currentTime'] = getCurrentTime()
             if act.status == Activity.STATUS_PUBLISHED:
                 re['status'] = 1
             else: re['status'] = 0
             ret.append(re)
-
         return ret
 
 class activityDelete(APIView):
     def post(self):
+        print("activityDelete post")
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
@@ -97,11 +102,10 @@ class activityDelete(APIView):
 
 class activityCreate(APIView):
     def post(self):
+        print("activityCreate post")
         if self.request.user.is_authenticated():
             self.check_input('name', 'key', 'place', 'description', 'picUrl', 'startTime',
                              'endTime', 'bookStart', 'bookEnd', 'totalTickets', 'status')
-            # print("self.input['endTime']="+str(self.input['endTime']))
-            # print("self.input['startTime']=" + str(self.input['startTime']))
             if int(self.input['bookEnd']) < int(self.input['bookStart']):
                 raise InputError("bookEnd < bookStart")
             if int(self.input['endTime']) < int(self.input['startTime']):
@@ -129,6 +133,7 @@ class activityCreate(APIView):
 
 class imageUpload(APIView):
     def post(self):
+        print("imageUpload post")
         if self.request.user.is_authenticated():
             self.check_input('image')
             ori_content=base64.b64decode(self.input['image'])
@@ -150,6 +155,7 @@ class imageUpload(APIView):
 
 class activityDetail(APIView):
     def get(self):
+        print("activityDetail get")
         if not self.request.user.is_authenticated():
             # print("detail offline!")
             raise LogicError('Your are offline!')
@@ -186,6 +192,7 @@ class activityDetail(APIView):
         return ret
 
     def post(self):
+        print("activityDetail post")
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
@@ -238,6 +245,7 @@ class activityDetail(APIView):
 
 class activityCheckin(APIView):
     def post(self):
+        print("activityCheckin get")
         ticket_info={}
         if self.request.user.is_authenticated():
             self.check_input('actId')
@@ -275,6 +283,7 @@ class activityCheckin(APIView):
 
 class activityMenu(APIView):
     def get(self):
+        print("activityMenu get")
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
@@ -295,6 +304,7 @@ class activityMenu(APIView):
         return ret
 
     def post(self):
+        print("activityMenu post")
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
