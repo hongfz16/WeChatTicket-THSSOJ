@@ -56,7 +56,7 @@ class logoutPage(APIView):
 class activityList(APIView):
 
     def get(self):
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         try:
@@ -76,7 +76,7 @@ class activityList(APIView):
             re['bookStart'] = act.book_start
             re['bookEnd'] = act.book_end
             re['currentTime'] = getCurrentTime()
-            if act['status'] == Activity.STATUS_PUBLISHED:
+            if act.status == Activity.STATUS_PUBLISHED:
                 re['status'] = 1
             else: re['status'] = 0
             ret.append(re)
@@ -85,7 +85,7 @@ class activityList(APIView):
 
 class activityDelete(APIView):
     def post(self):
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id')
@@ -93,7 +93,6 @@ class activityDelete(APIView):
             Activity.remove_by_id(self.input['id'])
         except:
             raise LogicError('delete activity error!')
-        return
 
 
 class activityCreate(APIView):
@@ -140,7 +139,8 @@ class imageUpload(APIView):
 
 class activityDetail(APIView):
     def get(self):
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
+            # print("detail offline!")
             raise LogicError('Your are offline!')
 
         self.check_input('id')
@@ -175,7 +175,7 @@ class activityDetail(APIView):
         return ret
 
     def post(self):
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id', 'name', 'place', 'description',
@@ -264,7 +264,7 @@ class activityCheckin(APIView):
 
 class activityMenu(APIView):
     def get(self):
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         try:
@@ -284,7 +284,7 @@ class activityMenu(APIView):
         return ret
 
     def post(self):
-        if self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
         self.check_input('id')

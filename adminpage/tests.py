@@ -214,17 +214,17 @@ class ActivityDeleteTest(TestCase):
                               })
         self.assertEqual(succ2response.json()['code'], 0)
     # another
-        response2 = c.post('/api/a/activity/delite',
+        response2 = c.post('/api/a/activity/delete',
                            {
                                'id': -1
                            })
         self.assertNotEqual(response2.json()['code'], 0)
-        response2 = c.post('/api/a/activity/delite',
+        response2 = c.post('/api/a/activity/delete',
                            {
                                'id': 0
                            })
         self.assertNotEqual(response2.json()['code'], 0)
-        response2 = c.post('/api/a/activity/delite',
+        response2 = c.post('/api/a/activity/delete',
                            {
                                'id': '0'
                            })
