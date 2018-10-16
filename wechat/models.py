@@ -50,7 +50,7 @@ class Activity(models.Model):
     @classmethod
     def get_by_id(cls, id):
         try:
-            print("id=" + str(id))
+            # print("id=" + str(id))
             return cls.objects.get(id=id)
         except:
             raise LogicError('get activity by id error!')

@@ -14,6 +14,7 @@ from django.utils import timezone
 import uuid
 import base64
 import os
+import json
 
 # Create your views here.
 
@@ -42,7 +43,7 @@ class loginPage(APIView):
         self.check_input('username', 'password')
         usr_name=self.input['username']
         pass_wrd=self.input['password']
-        user=auth.authenticate(username=usr_name, password=pass_wrd)
+        user=auth.authenticate(username=usr_name, password=pass_wrd, request=self.request)
         if user is not None:
             auth.login(self.request, user)
         else:
@@ -51,9 +52,9 @@ class loginPage(APIView):
 class logoutPage(APIView):
     def post(self):
         print("logoutPage post")
+        print(self.request)
+        auth.logout(self.request)
         if self.request.user.is_authenticated():
-            auth.logout(self.request)
-        else:
             raise LogicError('logout error!')
 
 class activityList(APIView):
@@ -161,7 +162,7 @@ class activityDetail(APIView):
 
         self.check_input('id')
         try:
-            res = Activity.get_by_id(self.input['id'])
+            res = Activity.get_by_id(int(self.input['id']))
         except:
             raise LogicError("get activity by id")
         ret = {}
@@ -199,7 +200,7 @@ class activityDetail(APIView):
                          'picUrl', 'startTime', 'endTime', 'bookStart',
                          'bookEnd', 'totalTickets', 'status')
         try:
-            res = Activity.get_by_id(self.input['id'])
+            res = Activity.get_by_id(int(self.input['id']))
         except:
             raise LogicError("get activity by id error!")
 
@@ -309,9 +310,14 @@ class activityMenu(APIView):
 
         self.check_input('idarr')
         print(type(self.input['idarr']))
-        print(self.input['idarr'])
+        print("self.input['idarr']="+str(self.input['idarr']))
         try:
-            CustomWeChatView.update_menu(int(self.input['idarr']))
+            res = Activity.get_by_id(int(self.input['idarr']))
+        except:
+            raise LogicError('get activity by id error!')
+
+        try:
+            CustomWeChatView.update_menu([res, ])
         except:
             raise LogicError('update Menu failed!')
         return
