@@ -35,15 +35,15 @@ class ActivityDetail(APIView):
                     activity_detail['name']=target_activity.name
                     activity_detail['key']=target_activity.key
                     activity_detail['description']=target_activity.name
-                    activity_detail['startTime']=target_activity.start_time.strftime('%Y-%m-%d %H:%M:%S')
-                    activity_detail['endTime'] = target_activity.end_time.strftime('%Y-%m-%d %H:%M:%S')
+                    activity_detail['startTime']=int(target_activity.start_time.timestamp())
+                    activity_detail['endTime'] = int(target_activity.end_time.timestamp())
                     activity_detail['place'] = target_activity.place
-                    activity_detail['bookStart'] = target_activity.book_start.strftime('%Y-%m-%d %H:%M:%S')
-                    activity_detail['bookEnd'] = target_activity.book_end.strftime('%Y-%m-%d %H:%M:%S')
+                    activity_detail['bookStart'] = int(target_activity.book_start.timestamp())
+                    activity_detail['bookEnd'] = int(target_activity.book_end.timestamp())
                     activity_detail['totalTickets']=target_activity.total_tickets
                     activity_detail['picUrl'] = target_activity.pic_url
                     activity_detail['remainTickets'] = target_activity.remain_tickets
-                    activity_detail['currentTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    activity_detail['currentTime'] = int(datetime.datetime.now().timestamp())
                     return activity_detail
                 else:
                     raise BaseError(code=4, msg='activity not published')
@@ -65,9 +65,9 @@ class TicketDetail(APIView):
                     ticket_detail['place'] = ticket.activity.place
                     ticket_detail['activityKey'] = ticket.activity.key
                     ticket_detail['uniqueId'] =ticket.unique_id
-                    ticket_detail['startTime'] = ticket.activity.start_time.strftime('%Y-%m-%d %H:%M:%S')
-                    ticket_detail['endTime'] = ticket.activity.end_time.strftime('%Y-%m-%d %H:%M:%S')
-                    ticket_detail['currentTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    ticket_detail['startTime'] = int(ticket.activity.start_time.timestamp())
+                    ticket_detail['endTime'] = int(ticket.activity.end_time.timestamp())
+                    ticket_detail['currentTime'] = int(datetime.datetime.now().timestamp())
                     ticket_detail['status'] = ticket.status
                     return ticket_detail
                 else:
