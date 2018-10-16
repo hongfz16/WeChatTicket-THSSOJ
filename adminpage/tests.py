@@ -48,7 +48,7 @@ class LoginTest(TestCase):
         loginresponse = c.get('/api/a/login',{})
         self.assertEqual(loginresponse.json()['code'], 0)
         c.post('/api/a/logout',{'sb':'sb'})
-        logoutresponse = c.get('api/a/login',{})
+        logoutresponse = c.get('/api/a/login',{})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
     # 2 client (session)
         c1 = Client()
@@ -87,7 +87,8 @@ class LogoutTest(TestCase):
                })
         succresponse = c.post('/api/a/logout',{'sb':'sb'})
         self.assertEqual(succresponse.json()['code'], 0)
-        failresponse = c.post('api/a/logout',{'sb':'sb'})
+        failresponse = c.post('/api/a/logout',{'sb':'sb'})
+        print('strange json', failresponse)
         self.assertNotEqual(failresponse.json()['code'], 0)
         # default status test
         c2 = Client()

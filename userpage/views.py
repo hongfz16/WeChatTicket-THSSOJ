@@ -70,7 +70,7 @@ class TicketDetail(APIView):
                 #     print('why this works ', User.objects.get(open_id=opn_id))
 
                 if ticket.student_id == std_id:
-                    ticket_detail['ticketName'] = ticket.activity.name
+                    ticket_detail['activityName'] = ticket.activity.name
                     ticket_detail['place'] = ticket.activity.place
                     ticket_detail['activityKey'] = ticket.activity.key
                     ticket_detail['uniqueId'] =ticket.unique_id
