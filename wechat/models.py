@@ -5,7 +5,7 @@ from codex.baseerror import LogicError
 
 class User(models.Model):
     open_id = models.CharField(max_length=64, unique=True, db_index=True)
-    student_id = models.CharField(max_length=32, unique=True, db_index=True)
+    student_id = models.CharField(max_length=32, unique=True, db_index=True, null=True, blank=True)
 
     @classmethod
     def get_by_openid(cls, openid):
@@ -33,13 +33,49 @@ class Activity(models.Model):
     STATUS_SAVED = 0
     STATUS_PUBLISHED = 1
 
+    @classmethod
+    def get_nonegtive_status(cls):
+        try:
+            return cls.objects.filter(status__gte=0)
+        except:
+            raise LogicError('get activity by status error!')
+
+    @classmethod
+    def get_status_published(cls):
+        try:
+            return cls.objects.filter(status=cls.STATUS_PUBLISHED)
+        except:
+            raise LogicError('get activity by status=1 error!')
+
+    @classmethod
+    def get_by_id(cls, id):
+        try:
+            return cls.objects.get(id=id)
+        except:
+            raise LogicError('get activity  by id')
+
+    @classmethod
+    def remove_by_id(cls, id):
+        try:
+            cls.objects.get(id=id).delete()
+        except:
+            raise LogicError('delete activity error!')
+
+
 
 class Ticket(models.Model):
     student_id = models.CharField(max_length=32, db_index=True)
     unique_id = models.CharField(max_length=64, db_index=True, unique=True)
-    activity = models.ForeignKey(Activity)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     status = models.IntegerField()
 
     STATUS_CANCELLED = 0
     STATUS_VALID = 1
     STATUS_USED = 2
+
+    @classmethod
+    def get_by_activity(cls, act):
+        try:
+            return cls.objects.filter(activity=act)
+        except:
+            raise LogicError('get ticket by activity error!')

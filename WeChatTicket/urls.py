@@ -18,6 +18,7 @@ from django.contrib import admin
 
 from wechat.views import CustomWeChatView
 from WeChatTicket.views import StaticFileView
+from adminpage.views import *
 
 
 urlpatterns = [
@@ -25,5 +26,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/u/', include('userpage.urls')),
     url(r'^api/a/', include('adminpage.urls')),
-    url(r'^', StaticFileView.as_view()),
+    url(r'^/?', StaticFileView.as_view()),
 ]
