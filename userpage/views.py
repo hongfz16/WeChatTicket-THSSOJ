@@ -64,6 +64,8 @@ class TicketDetail(APIView):
             opn_id=self.input['openid']
             unq_id=self.input['ticket']
             ticket_detail={}
+            if not isinstance(unq_id, str):
+                raise InputError('wrong input type')
             try:
                 ticket=Ticket.objects.get(unique_id=unq_id)
                 std_id = User.objects.get(open_id=opn_id).student_id
