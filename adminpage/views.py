@@ -136,7 +136,9 @@ class imageUpload(APIView):
         print("imageUpload post")
         if self.request.user.is_authenticated():
             self.check_input('image')
+            print(type(self.input['image']))
             ori_content=base64.b64decode(self.input['image'])
+
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
             if not os.path.exists(tgt_path):
