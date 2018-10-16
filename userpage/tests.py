@@ -236,12 +236,12 @@ class TestUActivity(TestCase):
     def testSuccess(self):
         c = Client()
         curTime = int(timezone.now().timestamp())
+        obj = Activity.objects.get(name = 'ycdfwzy')
         response = c.get(self.url,
                          {
-                            'id': 1
+                            'id': obj.id
                          })
         js = response.json()['data']
-        obj = Activity.objects.get(id = 1)
         self.assertEqual(js['name'], obj.name)
         self.assertEqual(js['key'], obj.key)
         self.assertEqual(js['description'], obj.description)

@@ -189,9 +189,11 @@ class ActivityDeleteTest(TestCase):
 
     def testPost(self):
         c = Client()
+        ac1 = Activity.objects.get(name='testac1')
+        ac2 = Activity.objects.get(name='testac2')
         logoutresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 1
+                                  'id': ac1.id
                               })
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
@@ -201,31 +203,31 @@ class ActivityDeleteTest(TestCase):
                })
         succresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 1
+                                  'id': ac1.id
                               })
         self.assertEqual(succresponse.json()['code'], 0)
         failresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 100
+                                  'id': 1000
                               })
         self.assertNotEqual(failresponse.json()['code'], 0)
         succ2response = c.post('/api/a/activity/delete',
                               {
-                                  'id': 2
+                                  'id': ac2.id
                               })
         self.assertEqual(succ2response.json()['code'], 0)
     # another
-        response2 = c.post('/api/a/activity/delite',
+        response2 = c.post('/api/a/activity/delete',
                            {
                                'id': -1
                            })
         self.assertNotEqual(response2.json()['code'], 0)
-        response2 = c.post('/api/a/activity/delite',
+        response2 = c.post('/api/a/activity/delete',
                            {
                                'id': 0
                            })
         self.assertNotEqual(response2.json()['code'], 0)
-        response2 = c.post('/api/a/activity/delite',
+        response2 = c.post('/api/a/activity/delete',
                            {
                                'id': '0'
                            })
@@ -432,8 +434,11 @@ class ActivityDetailTest(TestCase):
 
     def testGet(self):
         c = Client()
+        ac1 = Activity.objects.get(name='testac1')
+        ac2 = Activity.objects.get(name='testac2')
+        idarr = [ac1.id, ac2.id]
         getjson = {
-            'id': 1
+            'id': ac1.id
         }
         logoutresponse = c.get(self.url, getjson)
         self.assertNotEqual(logoutresponse.json()['code'], 0)
@@ -445,7 +450,7 @@ class ActivityDetailTest(TestCase):
         self.assertEqual(siresponse.json()['code'], 0)
         for i in range(2):
             getjson = {
-                'id': i+1
+                'id': idarr[i]
             }
             response = c.get(self.url, getjson)
             self.assertEqual(response.json()['code'], 0)
@@ -468,8 +473,9 @@ class ActivityDetailTest(TestCase):
 
     def testPost(self):
         c = Client()
+        id1 = Activity.objects.get(name='testac1').id
         postjson = {
-            'id': 1,
+            'id': id1,
             'name': 'testac1',
             'place': 'testplace1',
             'description': 'changedesc1',
@@ -528,20 +534,21 @@ class ActivityMenuTest(TestCase):
         activity = succresponse.json()['data']
         for i in range(1):
             ac = activity[i]
-            self.assertEqual(ac['id'], i+1)
+            self.assertEqual(ac['id'], Activity.objects.get(name='testac1').id)
             self.assertEqual(ac['name'], 'testac1')
         c.post('/api/a/logout',{})
 
     def testPost(self):
         c = Client()
-        logoutresponse = c.post(self.url, {'id':1})
+        id1 = Activity.objects.get(name='testac1').id
+        logoutresponse = c.post(self.url, {'id':id1})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
                {
                    'username': 'admin',
                    'password': 'thisispassword'
                })
-        succresponse = c.post(self.url, {'id':1})
+        succresponse = c.post(self.url, {'id':id1})
         self.assertEqual(succresponse.json()['code'], 0)
 
 class CheckinTest(TestCase):
@@ -582,7 +589,7 @@ class CheckinTest(TestCase):
                 })
         self.assertEqual(response.json()['code'], 0)
         postjson = {
-            'actId': 1,
+            'actId': Activity.objects.get(name='testac1'),
             'studentId': '1234567890'
         }
         logoutresponse = c.post(self.url, postjson)
