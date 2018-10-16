@@ -190,7 +190,7 @@ class ActivityDeleteTest(TestCase):
         c = Client()
         logoutresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 0
+                                  'id': 1
                               })
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
@@ -200,7 +200,7 @@ class ActivityDeleteTest(TestCase):
                })
         succresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 0
+                                  'id': 1
                               })
         self.assertEqual(succresponse.json()['code'], 0)
         failresponse = c.post('/api/a/activity/delete',
@@ -210,7 +210,7 @@ class ActivityDeleteTest(TestCase):
         self.assertNotEqual(failresponse.json()['code'], 0)
         succ2response = c.post('/api/a/activity/delete',
                               {
-                                  'id': 1
+                                  'id': 2
                               })
         self.assertEqual(succ2response.json()['code'], 0)
     # another
@@ -481,7 +481,7 @@ class ActivityDetailTest(TestCase):
                    'password': 'thisispassword'
                })
         succresponse = c.post(self.url, postjson)
-        self.assertEqual(logoutresponse.json()['code'], 0)
+        self.assertEqual(succresponse.json()['code'], 0)
         c.post('/api/a/logout',{})
 
 class ActivityMenuTest(TestCase):
