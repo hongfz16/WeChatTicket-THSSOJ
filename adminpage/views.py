@@ -40,7 +40,7 @@ class loginPage(APIView):
         self.check_input('username', 'password')
         usr_name=self.input['username']
         pass_wrd=self.input['password']
-        user=auth.authenticate(username=usr_name, password=pass_wrd)
+        user=auth.authenticate(username=usr_name, password=pass_wrd, request = self.request)
         if user is not None:
             auth.login(self.request, user)
         else:
@@ -48,10 +48,7 @@ class loginPage(APIView):
 
 class logoutPage(APIView):
     def post(self):
-        if self.request.user.is_authenticated():
-            auth.logout(self.request)
-        else:
-            raise LogicError('logout error!')
+        auth.logout(self.request)
 
 class activityList(APIView):
 
