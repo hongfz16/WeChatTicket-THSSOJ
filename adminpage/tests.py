@@ -432,17 +432,20 @@ class ActivityDetailTest(TestCase):
         }
         logoutresponse = c.get(self.url, getjson)
         self.assertNotEqual(logoutresponse.json()['code'], 0)
-        c.post('/api/a/login',
+        siresponse = c.post('/api/a/login',
                {
                    'username': 'admin',
                    'password': 'thisispassword'
                })
+        self.assertEqual(siresponse.json()['code'], 0)
         for i in range(2):
             getjson = {
                 'id': i+1
             }
             response = c.get(self.url, getjson)
+            self.assertEqual(response.json()['code'], 0)
             activity = response.json()['data']
+            self.assertIsInstance(activity, dict)
             self.assertEqual(activity['name'], 'testac'+str(i+1))
             self.assertEqual(activity['key'], 'thisisamaxlengthof64key')
             self.assertEqual(activity['description'], 'testdesc'+str(i+1))
