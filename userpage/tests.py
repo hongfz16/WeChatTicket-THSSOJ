@@ -46,7 +46,7 @@ class TestUBind(TestCase):
                          })
         self.assertNotEqual(response.json()['code'], 0)
     # post: user not found
-        response = c.c.post(self.url,
+        response = c.post(self.url,
                         {
                             'openid': 'bjdxlrj',
                             'student_id': '1234567890',
@@ -316,28 +316,28 @@ class TestUTicket(TestCase):
     # ticket2: success, a = 2, s = 0
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
+            unique_id = 'xyz',
             activity = Activity.objects.get(id = self.id2),
             status = 0
         )
     # ticket3: success, a = 3, s = 0
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
+            unique_id = 'abc',
             activity = Activity.objects.get(id = self.id3),
             status = 0
         )
     # ticket4: success, a = 1, s = 1
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
+            unique_id = 'dde',
             activity = Activity.objects.get(id = self.id1),
             status = 1
         )
     # ticket5: success, a = 1, s = 2
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
+            unique_id = 'rng',
             activity = Activity.objects.get(id = self.id1),
             status = 2
         )
