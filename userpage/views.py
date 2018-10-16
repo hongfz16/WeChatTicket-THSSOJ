@@ -73,6 +73,6 @@ class TicketDetail(APIView):
                 else:
                     raise BaseError(code=4, msg='not match')
             except:
-                ValidateError('not valid ticket')
+                raise ValidateError('not valid ticket')
         except:
             raise InputError('input message error')
