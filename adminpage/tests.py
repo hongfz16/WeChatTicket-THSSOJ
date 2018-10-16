@@ -541,7 +541,7 @@ class ActivityMenuTest(TestCase):
     def testPost(self):
         c = Client()
         id1 = Activity.objects.get(name='testac1').id
-        logoutresponse = c.post(self.url, {'id':id1})
+        logoutresponse = c.post(self.url, {'idarr':[id1]})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
                {
