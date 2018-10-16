@@ -100,19 +100,27 @@ class activityCreate(APIView):
         if self.request.user.is_authenticated():
             self.check_input('name', 'key', 'place', 'description', 'picUrl', 'startTime',
                              'endTime', 'bookStart', 'bookEnd', 'totalTickets', 'status')
+            print("self.input['bookEnd']="+str(self.input['bookEnd']))
+            print("self.input['bookStart']=" + str(self.input['bookStart']))
+            if int(self.input['bookEnd']) < int(self.input['bookStart']):
+                raise InputError("bookEnd < bookStart")
+            if int(self.input['endTime']) < int(self.input['startTime']):
+                raise InputError("endTime < startTime")
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
-                                        description=self.input['description'], pic_url=self.input['picUrl'],
-                                        start_time=datetime.fromtimestamp(self.input['startTime']),
-                                        end_time=datetime.fromtimestamp(self.input['endTime']),
-                                        book_start=datetime.fromtimestamp(self.input['bookStart']),
-                                        book_end=datetime.fromtimestamp(self.input['bookEnd']),
-                                        total_tickets=self.input['totalTickets'],
-                                        remain_tickets=self.input['totalTickets'],
-                                        status=self.input['status'])
+                                                     description=self.input['description'], pic_url=self.input['picUrl'],
+                                                     start_time=datetime.fromtimestamp(float(self.input['startTime'])),
+                                                     end_time=datetime.fromtimestamp(float(self.input['endTime'])),
+                                                     book_start=datetime.fromtimestamp(float(self.input['bookStart'])),
+                                                     book_end=datetime.fromtimestamp(float(self.input['bookEnd'])),
+                                                     total_tickets=self.input['totalTickets'],
+                                                     remain_tickets=self.input['totalTickets'],
+                                                     status=self.input['status'])
                 return new_activity.id
-            except:
-                raise InputError('error when write new activity item')
+            except Exception as e:
+                print("activityCreate fail!")
+                raise BaseError(4, str(e))
+                # raise InputError('error when write new activity item')
         else:
             raise ValidateError('user not logged')
 
