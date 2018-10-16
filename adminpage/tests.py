@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.test import Client
 from django.contrib.auth import get_user_model
-from wechat.models import Activity
+from wechat.models import Activity, Ticket
 from wechat.models import User as wechatuser
 from datetime import datetime
 from django.utils import timezone
@@ -144,12 +144,12 @@ class ActivityListTest(TestCase):
             self.assertEqual(activity['id'], i+1)
             self.assertEqual(activity['name'], 'testac'+str(i+1))
             self.assertEqual(activity['description'], 'testdesc'+str(i+1))
-            self.assertEqual(activity['startTime'], self.starttime.timestamp())
-            self.assertEqual(activity['endTime'], self.endtime.timestamp())
+            self.assertEqual(activity['startTime'], int(self.starttime.timestamp()))
+            self.assertEqual(activity['endTime'], int(self.endtime.timestamp()))
             self.assertEqual(activity['place'], 'testplace'+str(i+1))
-            self.assertEqual(activity['bookStart'], self.bookstart.timestamp())
-            self.assertEqual(activity['bookEnd'], self.bookend.timestamp())
-            self.assertAlmostEqual(activity['currentTime'], timezone.now().timestamp(), delta = 5)
+            self.assertEqual(activity['bookStart'], int(self.bookstart.timestamp()))
+            self.assertEqual(activity['bookEnd'], int(self.bookend.timestamp()))
+            self.assertAlmostEqual(activity['currentTime'], int(timezone.now().timestamp()), delta = 5)
             self.assertEqual(activity['status'], i)
 
 class ActivityDeleteTest(TestCase):
@@ -189,9 +189,11 @@ class ActivityDeleteTest(TestCase):
 
     def testPost(self):
         c = Client()
+        ac1 = Activity.objects.get(name='testac1')
+        ac2 = Activity.objects.get(name='testac2')
         logoutresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 1
+                                  'id': ac1.id
                               })
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
@@ -201,17 +203,17 @@ class ActivityDeleteTest(TestCase):
                })
         succresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 1
+                                  'id': ac1.id
                               })
         self.assertEqual(succresponse.json()['code'], 0)
         failresponse = c.post('/api/a/activity/delete',
                               {
-                                  'id': 100
+                                  'id': 1000
                               })
         self.assertNotEqual(failresponse.json()['code'], 0)
         succ2response = c.post('/api/a/activity/delete',
                               {
-                                  'id': 2
+                                  'id': ac2.id
                               })
         self.assertEqual(succ2response.json()['code'], 0)
     # another
@@ -355,8 +357,6 @@ class ActivityCreateTest(TestCase):
         # multiple language test
             # 1
         # postjson2 = deepcopy(postjsonbs)
-        # print("lrj-xx  EDT   "+str(postjson2['endTime']))
-        # print("lrj-xx  STT   "+str(postjson2['startTime']))
         # postjson2['name'] = '讲中文'
         # postjson2['description'] = '讲中文'
         # response2 = c.post(self.url, postjson2)
@@ -434,8 +434,11 @@ class ActivityDetailTest(TestCase):
 
     def testGet(self):
         c = Client()
+        ac1 = Activity.objects.get(name='testac1')
+        ac2 = Activity.objects.get(name='testac2')
+        idarr = [ac1.id, ac2.id]
         getjson = {
-            'id': 1
+            'id': ac1.id
         }
         logoutresponse = c.get(self.url, getjson)
         self.assertNotEqual(logoutresponse.json()['code'], 0)
@@ -447,7 +450,7 @@ class ActivityDetailTest(TestCase):
         self.assertEqual(siresponse.json()['code'], 0)
         for i in range(2):
             getjson = {
-                'id': i+1
+                'id': idarr[i]
             }
             response = c.get(self.url, getjson)
             self.assertEqual(response.json()['code'], 0)
@@ -456,22 +459,23 @@ class ActivityDetailTest(TestCase):
             self.assertEqual(activity['name'], 'testac'+str(i+1))
             self.assertEqual(activity['key'], 'thisisamaxlengthof64key')
             self.assertEqual(activity['description'], 'testdesc'+str(i+1))
-            self.assertEqual(activity['startTime'], self.starttime.timestamp())
-            self.assertEqual(activity['endTime'], self.endtime.timestamp())
+            self.assertEqual(activity['startTime'], int(self.starttime.timestamp()))
+            self.assertEqual(activity['endTime'], int(self.endtime.timestamp()))
             self.assertEqual(activity['place'], 'testplace'+str(i+1))
-            self.assertEqual(activity['bookStart'], self.bookstart.timestamp())
-            self.assertEqual(activity['bookEnd'], self.bookend.timestamp())
+            self.assertEqual(activity['bookStart'], int(self.bookstart.timestamp()))
+            self.assertEqual(activity['bookEnd'], int(self.bookend.timestamp()))
             self.assertEqual(activity['totalTickets'], self.tickets[i])
             self.assertEqual(activity['picUrl'], 'http://thisisaurl.com')
             self.assertEqual(activity['usedTickets'], self.tickets[i]-1)
-            self.assertAlmostEqual(activity['currentTime'], timezone.now().timestamp(), delta = 5)
+            self.assertAlmostEqual(activity['currentTime'], int(timezone.now().timestamp()), delta = 5)
             self.assertEqual(activity['status'], i)
         c.post('/api/a/logout',{})
 
     def testPost(self):
         c = Client()
+        id1 = Activity.objects.get(name='testac1').id
         postjson = {
-            'id': 1,
+            'id': id1,
             'name': 'testac1',
             'place': 'testplace1',
             'description': 'changedesc1',
@@ -530,20 +534,21 @@ class ActivityMenuTest(TestCase):
         activity = succresponse.json()['data']
         for i in range(1):
             ac = activity[i]
-            self.assertEqual(ac['id'], i+1)
+            self.assertEqual(ac['id'], Activity.objects.get(name='testac1').id)
             self.assertEqual(ac['name'], 'testac1')
         c.post('/api/a/logout',{})
 
     def testPost(self):
         c = Client()
-        logoutresponse = c.post(self.url, {'id':1})
+        id1 = Activity.objects.get(name='testac1').id
+        logoutresponse = c.post(self.url, {'idarr':[id1]})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
         c.post('/api/a/login',
                {
                    'username': 'admin',
                    'password': 'thisispassword'
                })
-        succresponse = c.post(self.url, {'id':1})
+        succresponse = c.post(self.url, {'id':id1})
         self.assertEqual(succresponse.json()['code'], 0)
 
 class CheckinTest(TestCase):
@@ -569,6 +574,10 @@ class CheckinTest(TestCase):
                                 remain_tickets = 99
                                 )
         wechatuser.objects.create(open_id = 'ycdfwzy')
+        Ticket.objects.create(student_id = '1234567890',
+                              unique_id = 'thisisauniqueid',
+                              activity = Activity.objects.get(name='testac1'),
+                              status = 1)
 
     def testPost(self):
         c = Client()
@@ -580,7 +589,7 @@ class CheckinTest(TestCase):
                 })
         self.assertEqual(response.json()['code'], 0)
         postjson = {
-            'actId': 1,
+            'actId': Activity.objects.get(name='testac1'),
             'studentId': '1234567890'
         }
         logoutresponse = c.post(self.url, postjson)

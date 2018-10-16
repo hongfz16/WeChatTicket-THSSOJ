@@ -53,6 +53,7 @@ class logoutPage(APIView):
         else:
             raise LogicError('logout error!')
 
+
 class activityList(APIView):
 
     def get(self):
