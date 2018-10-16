@@ -87,7 +87,7 @@ class LogoutTest(TestCase):
                })
         succresponse = c.post('/api/a/logout',{'sb':'sb'})
         self.assertEqual(succresponse.json()['code'], 0)
-        failresponse = c.post('/api/a/logout',{'sb':'sb'})
+        failresponse = c.post('api/a/logout',{'sb':'sb'})
         self.assertNotEqual(failresponse.json()['code'], 0)
         # default status test
         c2 = Client()
@@ -473,7 +473,8 @@ class ActivityDetailTest(TestCase):
             self.assertEqual(activity['bookEnd'], int(self.bookend.timestamp()))
             self.assertEqual(activity['totalTickets'], self.tickets[i])
             self.assertEqual(activity['picUrl'], 'http://thisisaurl.com')
-            self.assertEqual(activity['usedTickets'], self.tickets[i]-1)
+            # self.assertEqual(activity['usedTickets'], self.tickets[i]-1)
+            self.assertEqual(activity['usedTickets'], 0)
             self.assertAlmostEqual(activity['currentTime'], int(timezone.now().timestamp()), delta = 5)
             self.assertEqual(activity['status'], i)
         c.post('/api/a/logout',{'sb':'sb'})
