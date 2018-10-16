@@ -46,7 +46,7 @@ class TestUBind(TestCase):
                          })
         self.assertNotEqual(response.json()['code'], 0)
     # post: user not found
-        response = c.c.post(self.url,
+        response = c.post(self.url,
                         {
                             'openid': 'bjdxlrj',
                             'student_id': '1234567890',
@@ -169,49 +169,46 @@ class TestUActivity(TestCase):
         )
     # act 3
         Activity.objects.create(
-            name = 'wzsxzjl',
-            key = 'zjl',
-            description = 'jlz',
+            name = 'klsxhfz',
+            key = 'hfz',
+            description = 'fzh',
             start_time = datetime(1999, 9, 11, 2, 31, 0),
             end_time = datetime(2000, 11, 8, 23, 59, 59),
-            place = 'jldechuangshang',
+            place = 'fzdechuangshang',
             book_start = datetime(1997, 12, 9, 8, 8, 8),
             book_end = datetime(2000, 11, 8, 0, 0, 0),
             total_tickets = 100,
             status = -1,
-            pic_url = 'https://www.pornhub.com/ycdfwzy.png',
+            pic_url = 'https://www.pornhub.com/hfz.png',
             remain_tickets = 50
         )
+        self.id1 = Activity.objects.get(name = 'ycdfwzy').id
+        self.id2 = Activity.objects.get(name = 'wzsxzjl').id
+        self.id3 = Activity.objects.get(name = 'klsxhfz').id
 
     def testFail(self):
         c = Client()
         response = c.get(self.url,
                          {
-                             'id': 2
+                             'id': self.id2
                          })
         self.assertNotEqual(response.json()['code'], 0)
 
         response = c.get(self.url,
                          {
-                             'id': 3
+                             'id': self.id3
                          })
         self.assertNotEqual(response.json()['code'], 0)
 
         response = c.get(self.url,
                          {
-                             'id': 4
+                             'id': 4000
                          })
         self.assertNotEqual(response.json()['code'], 0)
 
         response = c.get(self.url,
                          {
                              'id': -1
-                         })
-        self.assertNotEqual(response.json()['code'], 0)
-
-        response = c.get(self.url,
-                         {
-                             'id': 3
                          })
         self.assertNotEqual(response.json()['code'], 0)
 
@@ -236,12 +233,12 @@ class TestUActivity(TestCase):
     def testSuccess(self):
         c = Client()
         curTime = int(timezone.now().timestamp())
+        obj = Activity.objects.get(id = self.id1)
         response = c.get(self.url,
                          {
-                            'id': 1
+                            'id': self.id1
                          })
         js = response.json()['data']
-        obj = Activity.objects.get(id = 1)
         self.assertEqual(js['name'], obj.name)
         self.assertEqual(js['key'], obj.key)
         self.assertEqual(js['description'], obj.description)
@@ -261,83 +258,87 @@ class TestUTicket(TestCase):
         User.objects.create(open_id = 'ycdfwzy')
     # act 1
         Activity.objects.create(
-            name='ycdfwzy',
-            key='wzy',
-            description='zyw',
-            start_time=datetime(1999, 9, 11, 2, 31, 0),
-            end_time=datetime(2000, 11, 8, 23, 59, 59),
-            place='zsdechuangshang',
-            book_start=datetime(1997, 12, 9, 8, 8, 8),
-            book_end=datetime(2000, 11, 8, 0, 0, 0),
-            total_tickets=100,
-            status=1,
-            pic_url='https://www.pornhub.com/ycdfwzy.png',
-            remain_tickets=50
+            name = 'ycdfwzy',
+            key = 'wzy',
+            description = 'zyw',
+            start_time = datetime(1999, 9, 11, 2, 31, 0),
+            end_time = datetime(2000, 11, 8, 23, 59, 59),
+            place = 'zsdechuangshang',
+            book_start = datetime(1997, 12, 9, 8, 8, 8),
+            book_end = datetime(2000, 11, 8, 0, 0, 0),
+            total_tickets = 100,
+            status = 1,
+            pic_url = 'https://www.pornhub.com/ycdfwzy.png',
+            remain_tickets = 50
         )
     # act 2
         Activity.objects.create(
-            name='wzsxzjl',
-            key='zjl',
-            description='jlz',
-            start_time=datetime(1999, 9, 11, 2, 31, 0),
-            end_time=datetime(2000, 11, 8, 23, 59, 59),
-            place='jldechuangshang',
-            book_start=datetime(1997, 12, 9, 8, 8, 8),
-            book_end=datetime(2000, 11, 8, 0, 0, 0),
-            total_tickets=100,
-            status=0,
-            pic_url='https://www.pornhub.com/ycdfwzy.png',
-            remain_tickets=50
+            name = 'wzsxzjl',
+            key = 'zjl',
+            description = 'jlz',
+            start_time = datetime(1999, 9, 11, 2, 31, 0),
+            end_time = datetime(2000, 11, 8, 23, 59, 59),
+            place = 'jldechuangshang',
+            book_start = datetime(1997, 12, 9, 8, 8, 8),
+            book_end = datetime(2000, 11, 8, 0, 0, 0),
+            total_tickets = 100,
+            status = 0,
+            pic_url = 'https://www.pornhub.com/ycdfwzy.png',
+            remain_tickets = 50
         )
     # act 3
         Activity.objects.create(
-            name='wzsxzjl',
-            key='zjl',
-            description='jlz',
-            start_time=datetime(1999, 9, 11, 2, 31, 0),
-            end_time=datetime(2000, 11, 8, 23, 59, 59),
-            place='jldechuangshang',
-            book_start=datetime(1997, 12, 9, 8, 8, 8),
-            book_end=datetime(2000, 11, 8, 0, 0, 0),
-            total_tickets=100,
-            status=-1,
-            pic_url='https://www.pornhub.com/ycdfwzy.png',
-            remain_tickets=50
+            name = 'klsxhfz',
+            key = 'hfz',
+            description = 'fzh',
+            start_time = datetime(1999, 9, 11, 2, 31, 0),
+            end_time = datetime(2000, 11, 8, 23, 59, 59),
+            place = 'fzdechuangshang',
+            book_start = datetime(1997, 12, 9, 8, 8, 8),
+            book_end = datetime(2000, 11, 8, 0, 0, 0),
+            total_tickets = 100,
+            status = -1,
+            pic_url = 'https://www.pornhub.com/hfz.png',
+            remain_tickets = 50
         )
+        self.id1 = Activity.objects.get(name = 'ycdfwzy').id
+        self.id2 = Activity.objects.get(name = 'wzsxzjl').id
+        self.id3 = Activity.objects.get(name = 'klsxhfz').id
+
 
     # ticket1: success, a = 1, s = 0
         Ticket.objects.create(
             student_id = '1234567890',
             unique_id = '123',
-            activity = Activity.objects.get(id = 1),
+            activity = Activity.objects.get(id = self.id1),
             status = 0
         )
     # ticket2: success, a = 2, s = 0
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
-            activity = Activity.objects.get(id = 2),
+            unique_id = 'xyz',
+            activity = Activity.objects.get(id = self.id2),
             status = 0
         )
     # ticket3: success, a = 3, s = 0
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
-            activity = Activity.objects.get(id = 3),
+            unique_id = 'abc',
+            activity = Activity.objects.get(id = self.id3),
             status = 0
         )
     # ticket4: success, a = 1, s = 1
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
-            activity = Activity.objects.get(id = 1),
+            unique_id = 'dde',
+            activity = Activity.objects.get(id = self.id1),
             status = 1
         )
     # ticket5: success, a = 1, s = 2
         Ticket.objects.create(
             student_id = '1234567890',
-            unique_id = '123',
-            activity = Activity.objects.get(id = 1),
+            unique_id = 'rng',
+            activity = Activity.objects.get(id = self.id1),
             status = 2
         )
 

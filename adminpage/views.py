@@ -72,7 +72,6 @@ class activityList(APIView):
         for act in actived_activities:
             re = {}
             re['id'] = act.id
-            print(re['id'])
             re['name'] = act.name
             re['description'] = act.description
             re['startTime'] = int(act.start_time.timestamp())
@@ -169,11 +168,11 @@ class activityDetail(APIView):
         ret['name'] = res.name
         ret['key'] = res.key
         ret['description'] = res.description
-        ret['startTime'] = res.start_time
-        ret['endTime'] = res.end_time
+        ret['startTime'] = int(res.start_time.timestamp())
+        ret['endTime'] = int(res.end_time.timestamp())
         ret['place'] = res.place
-        ret['bookStart'] = res.book_start
-        ret['bookEnd'] = res.book_end
+        ret['bookStart'] = int(res.book_start.timestamp())
+        ret['bookEnd'] = int(res.book_end.timestamp())
         ret['totalTickets'] = res.total_tickets
         ret['picUrl'] = res.pic_url
         ret['bookedTickets'] = res.total_tickets-res.remain_tickets
@@ -209,36 +208,36 @@ class activityDetail(APIView):
                 raise LogicError('can\'t  modify name')
             if res.place != self.input['place']:
                 raise LogicError('can\'t  modify place')
-            if res.book_start != self.input['bookStart']:
+            # print("self.input['bookStart="+str(self.input['bookStart']))
+            # print("res.book_start="+str(res.book_start))
+            if int(res.book_start.timestamp()) != int(float(self.input['bookStart'])):
                 raise LogicError('can\'t  modify book_start')
-            if res.status != self.input['status'] and self.input['status'] == 0:
+            if res.status != int(self.input['status']) and int(self.input['status']) == 0:
                 raise LogicError('can\'t  modify status')
 
         curTime = getCurrentTime()
-        if curTime > res.start_time:
-            if res.book_end != self.input['bookEnd']:
+        if curTime > int(res.start_time.timestamp()):
+            if int(res.book_end.timestamp()) != int(float(self.input['bookEnd'])):
                 raise LogicError('can\'t  modify book_end')
-
-        if curTime > res.end_time:
-            if res.start_time != self.input['startTime']:
-                raise LogicError('can\'t  modify start_time')
-            if res.end_time != self.input['endTime']:
-                raise LogicError('can\'t  modify end_time')
-
-        if curTime > res.totalTickets:
-            if res.total_tickets != self.input['totalTickets']:
+            if res.total_tickets != int(self.input['totalTickets']):
                 raise LogicError('can\'t  modify total_tickets')
+
+        if curTime > int(res.end_time.timestamp()):
+            if int(res.start_time.timestamp()) != int(float(self.input['startTime'])):
+                raise LogicError('can\'t  modify start_time')
+            if int(res.end_time.timestamp()) != int(float(self.input['endTime'])):
+                raise LogicError('can\'t  modify end_time')
 
         res.name = self.input['name']
         res.place = self.input['place']
         res.description = self.input['description']
         res.pic_url = self.input['picUrl']
-        res.start_time = self.input['startTime']
-        res.end_time = self.input['endTime']
-        res.book_start = self.input['bookStart']
-        res.book_end = self.input['bookEnd']
-        res.total_tickets = self.input['totalTickets']
-        res.status = self.input['status']
+        res.start_time = datetime.fromtimestamp(float(self.input['startTime']))
+        res.end_time = datetime.fromtimestamp(float(self.input['endTime']))
+        res.book_start = datetime.fromtimestamp(float(self.input['bookStart']))
+        res.book_end = datetime.fromtimestamp(float(self.input['bookEnd']))
+        res.total_tickets = int(self.input['totalTickets'])
+        res.status = int(self.input['status'])
         res.save()
         return
 
@@ -308,9 +307,11 @@ class activityMenu(APIView):
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
-        self.check_input('id')
+        self.check_input('idarr')
+        print(type(self.input['idarr']))
+        print(self.input['idarr'])
         try:
-            CustomWeChatView.update_menu(self.input['id'])
+            CustomWeChatView.update_menu(int(self.input['idarr']))
         except:
-            raise LogicError('add Menu failed!')
+            raise LogicError('update Menu failed!')
         return
