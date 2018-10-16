@@ -9,9 +9,9 @@ from wechat.models import User, Activity, Ticket
 class TestUBind(TestCase):
     def setUp(self):
         self.url = '/api/u/user/bind'
-        User.objects.create(open_id = 'ycdfwzy')
-        User.objects.create(open_id = 'wzsxzjl')
-        User.objects.create(open_id = 'klsshfz')
+        User.objects.create(open_id = 'ycdfwzy', student_id='1234567890')
+        User.objects.create(open_id = 'wzsxzjl', student_id='9876543210')
+        User.objects.create(open_id = 'klsshfz', student_id='7894561230')
 
     def testUserNotExist(self):
 # test nobody
@@ -61,7 +61,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'klsshfz'
                          })
-        self.assertEqual(response.json()['data'], '')
+        self.assertEqual(response.json()['data'], '7894561230')
 
 # test zjl
     # invalid student id
@@ -115,7 +115,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'wzsxzjl'
                          })
-        self.assertEqual(response.json()['data'], '')
+        self.assertEqual(response.json()['data'], '9876543210')
 
 # test wzy
     # success
@@ -129,10 +129,11 @@ class TestUBind(TestCase):
 
         response = c.post(self.url,
                           {
-                               'openid': 'ycdfwzy'
+                               'openid': 'ycdfwzy',
+                               'student_id': '1234567891',
+                               'password': 'jstql'
                           })
         self.assertEqual(response.json()['code'], 0)
-        self.assertEqual(response.json()['data'], '1234567890')
 
 class TestUActivity(TestCase):
     def setUp(self):

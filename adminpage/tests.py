@@ -584,7 +584,7 @@ class CheckinTest(TestCase):
                                 pic_url = 'http://thisisaurl.com',
                                 remain_tickets = 99
                                 )
-        wechatuser.objects.create(open_id = 'ycdfwzy')
+        wechatuser.objects.create(open_id = 'ycdfwzy', student_id='1234567890')
         Ticket.objects.create(student_id = '1234567890',
                               unique_id = 'thisisauniqueid',
                               activity = Activity.objects.get(name='testac1'),
