@@ -235,24 +235,28 @@ class ActivityCreateTest(TestCase):
         self.url = '/api/a/activity/create'
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
-        # self.starttime = int(timezone.now().timestamp())
-        # self.endtime = int(timezone.now().timestamp())
-        # self.bookstart = int(timezone.now().timestamp())
-        # self.bookend = int(timezone.now().timestamp())
+        # self.starttime = timezone.now().timestamp()
+        # self.endtime = timezone.now().timestamp()
+        # self.bookstart = timezone.now().timestamp()
+        # self.bookend = timezone.now().timestamp()
+        self.mstarttime = datetime(1999, 9, 11, 2, 31, 0)
+        self.mendtime = datetime(2000, 11, 8, 23, 59, 59)
+        self.mbookstart = datetime(1997, 12, 9, 8, 8, 8)
+        self.mbookend = datetime(2000, 11, 8, 0, 0, 0)
 
-        self.starttime = int(datetime(1999, 9, 11, 2, 31, 0).timestamp())
-        self.endtime = int(datetime(2000, 11, 8, 23, 59, 59).timestamp())
-        self.bookstart = int(datetime(1997, 12, 9, 8, 8, 8).timestamp())
-        self.bookend = int(datetime(2000, 11, 8, 0, 0, 0).timestamp())
+        self.starttime = int(self.mstarttime.timestamp())
+        self.endtime = int(self.mendtime.timestamp())
+        self.bookstart = int(self.mbookstart.timestamp())
+        self.bookend = int(self.mbookend.timestamp())
         # already an activity in db
         Activity.objects.create(name='testac2',
                                 key='thisisamaxlengthof64key',
                                 description='testdesc2',
-                                start_time=self.starttime,
-                                end_time=self.endtime,
+                                start_time=self.mstarttime,
+                                end_time=self.mendtime,
                                 place='testplace2',
-                                book_start=self.bookstart,
-                                book_end=self.bookend,
+                                book_start=self.mbookstart,
+                                book_end=self.mbookend,
                                 total_tickets=200,
                                 status=1,
                                 pic_url='http://thisisaurl.com',
