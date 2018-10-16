@@ -369,7 +369,7 @@ class ImageUploadTest(TestCase):
         self.url = '/api/a/image/upload'
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
-        self.imgpath = '../static/img/good.png'
+        self.imgpath = 'static/img/good.png'
 
     def testPost(self):
         c = Client()
