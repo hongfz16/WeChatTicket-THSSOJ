@@ -15,6 +15,7 @@ import uuid
 import base64
 import os
 import json
+import pickle
 
 # Create your views here.
 
@@ -35,7 +36,7 @@ class loginPage(APIView):
     def get(self):
         print("loginPage get")
         if self.request.user.is_authenticated():
-            pass
+            return ''
         else:
             raise ValidateError('user not logged')
     def post(self):
@@ -52,10 +53,11 @@ class loginPage(APIView):
 class logoutPage(APIView):
     def post(self):
         print("logoutPage post")
-        print(self.request.user)
-        auth.logout(self.request)
-        if self.request.user.is_authenticated():
+        # print(self.request.user)
+        if not self.request.user.is_authenticated():
             raise LogicError('logout error!')
+        auth.logout(self.request)
+
 
 class activityList(APIView):
 
@@ -136,13 +138,14 @@ class imageUpload(APIView):
         print("imageUpload post")
         if self.request.user.is_authenticated():
             self.check_input('image')
-            ori_content=base64.b64decode(self.input['image'])
+            ori_content=self.input['image']
+
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
             if not os.path.exists(tgt_path):
                 try:
                     os.makedirs(tgt_path)
-                    image_path=tgt_path+'/'+uuid.uuid1()+'.png'
+                    image_path=tgt_path+'/'+str(uuid.uuid1())+'.png'
                     img_file=open(image_path, 'w')
                     img_file.write(ori_content)
                     img_file.close()
@@ -308,16 +311,22 @@ class activityMenu(APIView):
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
 
-        self.check_input('idarr')
-        print(type(self.input['idarr']))
-        print("self.input['idarr']="+str(self.input['idarr']))
+        if isinstance(self.input, list):
+            acts = self.input
+        elif isinstance(self.input['idarr'], str):
+            acts = [int(self.input['idarr']), ]
+        else:
+            raise LogicError('logical error!')
+
         try:
-            res = Activity.get_by_id(int(self.input['idarr']))
+            res = []
+            for act in acts:
+                res.append(Activity.get_by_id(int(act)))
         except:
             raise LogicError('get activity by id error!')
 
         try:
-            CustomWeChatView.update_menu([res, ])
+            CustomWeChatView.update_menu(res)
         except:
             raise LogicError('update Menu failed!')
         return
