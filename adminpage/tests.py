@@ -21,21 +21,21 @@ class LoginTest(TestCase):
                               'username': 'admin',
                               'password': 'thisispassword'
                           })
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
         self.assertEqual(trueresponse.json()['code'], 0)
         falsepwdresponse = c.post('/api/a/login',
                                {
                                    'username': 'admin',
                                    'password': 'thisisnotpassword'
                                })
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
         self.assertNotEqual(falsepwdresponse.json()['code'], 0)
         falseunresponse = c.post('/api/a/login',
                                  {
                                      'username': 'notadmin',
                                      'password': 'thisispassword'
                                  })
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
         self.assertNotEqual(falseunresponse.json()['code'], 0)
 
     def testGet(self):
@@ -47,7 +47,7 @@ class LoginTest(TestCase):
                })
         loginresponse = c.get('/api/a/login',{})
         self.assertEqual(loginresponse.json()['code'], 0)
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
         logoutresponse = c.get('api/a/login',{})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
     # 2 client (session)
@@ -85,13 +85,13 @@ class LogoutTest(TestCase):
                    'username': 'admin',
                    'password': 'thisispassword'
                })
-        succresponse = c.post('/api/a/logout',{})
+        succresponse = c.post('/api/a/logout',{'sb':'sb'})
         self.assertEqual(succresponse.json()['code'], 0)
-        failresponse = c.post('api/a/logout',{})
+        failresponse = c.post('/api/a/logout',{'sb':'sb'})
         self.assertNotEqual(failresponse.json()['code'], 0)
         # default status test
         c2 = Client()
-        response2 = c2.post('/api/a/logout', {})
+        response2 = c2.post('/api/a/logout',{'sb':'sb'})
         self.assertNotEqual(response2.json()['code'], 0)
 
 class ActivityListTest(TestCase):
@@ -370,6 +370,11 @@ class ActivityCreateTest(TestCase):
         # self.assertEqual(response2.json()['code'], 0)
         # self.assertEqual(response2.json()['data'], 4)
 
+def toStr(bts):
+    rtn = ''
+    for x in bts:
+        rtn += chr(x)
+    return rtn
 
 class ImageUploadTest(TestCase):
     def setUp(self):
@@ -381,7 +386,9 @@ class ImageUploadTest(TestCase):
     def testPost(self):
         c = Client()
         imgf = open(self.imgpath, 'rb')
-        imgstr = base64.b64encode(imgf.read())
+        imgstr = toStr(base64.b64encode(imgf.read()))
+        print('label')
+        print(imgstr)
         postjson = {
             'image': imgstr
         }
@@ -469,7 +476,7 @@ class ActivityDetailTest(TestCase):
             self.assertEqual(activity['usedTickets'], self.tickets[i]-1)
             self.assertAlmostEqual(activity['currentTime'], int(timezone.now().timestamp()), delta = 5)
             self.assertEqual(activity['status'], i)
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
 
     def testPost(self):
         c = Client()
@@ -496,7 +503,7 @@ class ActivityDetailTest(TestCase):
                })
         succresponse = c.post(self.url, postjson)
         self.assertEqual(succresponse.json()['code'], 0)
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
 
 class ActivityMenuTest(TestCase):
     def setUp(self):
@@ -536,7 +543,7 @@ class ActivityMenuTest(TestCase):
             ac = activity[i]
             self.assertEqual(ac['id'], Activity.objects.get(name='testac1').id)
             self.assertEqual(ac['name'], 'testac1')
-        c.post('/api/a/logout',{})
+        c.post('/api/a/logout',{'sb':'sb'})
 
     def testPost(self):
         c = Client()
