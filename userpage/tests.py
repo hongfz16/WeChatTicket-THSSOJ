@@ -148,7 +148,7 @@ class TestUActivity(TestCase):
             book_end = datetime(2000, 11, 8, 0, 0, 0),
             total_tickets = 100,
             status = 1,
-            pic_url = 'https://www.pornhub.com/',
+            pic_url = 'https://www.pornhub.com/ycdfwzy.png',
             remain_tickets = 50
         )
     # act 2
@@ -163,7 +163,7 @@ class TestUActivity(TestCase):
             book_end = datetime(2000, 11, 8, 0, 0, 0),
             total_tickets = 100,
             status = 0,
-            pic_url = 'https://www.pornhub.com/',
+            pic_url = 'https://www.pornhub.com/ycdfwzy.png',
             remain_tickets = 50
         )
     # act 3
@@ -178,7 +178,7 @@ class TestUActivity(TestCase):
             book_end = datetime(2000, 11, 8, 0, 0, 0),
             total_tickets = 100,
             status = -1,
-            pic_url = 'https://www.pornhub.com/',
+            pic_url = 'https://www.pornhub.com/ycdfwzy.png',
             remain_tickets = 50
         )
 
@@ -239,7 +239,7 @@ class TestUActivity(TestCase):
                          {
                             'id': 1
                          })
-        js = response.json()
+        js = response.json()['data']
         obj = Activity.objects.get(id = 1)
         self.assertEqual(js['name'], obj.name)
         self.assertEqual(js['key'], obj.key)
@@ -270,7 +270,7 @@ class TestUTicket(TestCase):
             book_end=datetime(2000, 11, 8, 0, 0, 0),
             total_tickets=100,
             status=1,
-            pic_url='https://www.pornhub.com/',
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=50
         )
     # act 2
@@ -285,7 +285,7 @@ class TestUTicket(TestCase):
             book_end=datetime(2000, 11, 8, 0, 0, 0),
             total_tickets=100,
             status=0,
-            pic_url='https://www.pornhub.com/',
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=50
         )
     # act 3
@@ -300,7 +300,7 @@ class TestUTicket(TestCase):
             book_end=datetime(2000, 11, 8, 0, 0, 0),
             total_tickets=100,
             status=-1,
-            pic_url='https://www.pornhub.com/',
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=50
         )
 
@@ -392,7 +392,7 @@ class TestUTicket(TestCase):
                              'openid': 'ycdfwzy',
                              'ticket': '123'
                          })
-        js = response.json()
+        js = response.json()['data']
         objT = Ticket.objects.get(unique_id = '123')
         objA = objT.activity
         self.assertEqual(js['activityName'], objA.name)
@@ -403,4 +403,3 @@ class TestUTicket(TestCase):
         self.assertEqual(js['endTime'], int(objA.end_time.timestamp()))
         self.assertEqual(js['status'], objT.status)
         self.assertAlmostEqual(js['currentTime'], curTime, delta = 5)
-    

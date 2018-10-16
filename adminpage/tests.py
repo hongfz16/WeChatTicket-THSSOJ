@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.test import Client
 from django.contrib.auth import get_user_model
@@ -47,6 +48,28 @@ class LoginTest(TestCase):
         c.post('/api/a/logout',{})
         logoutresponse = c.get('api/a/login',{})
         self.assertNotEqual(logoutresponse.json()['code'], 0)
+    # 2 client (session)
+        c1 = Client()
+        response1 = c1.post('/api/a/login',
+               {
+                   'username': 'admin',
+                   'password': 'thisispassword'
+               })
+        self.assertEqual(response1.json()['code'], 0)
+        response1 = c1.get('/api/a/login', {})
+        self.assertEqual(response1.json()['code'], 0)
+        c2 = Client()
+        response2 = c2.get('/api/a/login', {})
+        self.assertNotEqual(response2.json()['code'], 0)
+        response2 = c2.post('/api/a/login',
+               {
+                   'username': 'admin',
+                   'password': 'thisispassword'
+               })
+        self.assertEqual(response2.json()['code'], 0)
+        response2 = c2.get('/api/a/login', {})
+        self.assertEqual(response2.json()['code'], 0)
+
 
 class LogoutTest(TestCase):
     def setUp(self):
@@ -64,6 +87,10 @@ class LogoutTest(TestCase):
         self.assertEqual(succresponse.json()['code'], 0)
         failresponse = c.post('api/a/logout',{})
         self.assertNotEqual(failresponse.json()['code'], 0)
+        # default status test
+        c2 = Client()
+        response2 = c2.post('/api/a/logout', {})
+        self.assertNotEqual(response2.json()['code'], 0)
 
 class ActivityListTest(TestCase):
     def setUp(self):
@@ -185,16 +212,52 @@ class ActivityDeleteTest(TestCase):
                                   'id': 1
                               })
         self.assertEqual(succ2response.json()['code'], 0)
+    # another
+        response2 = c.post('/api/a/activity/delite',
+                           {
+                               'id': -1
+                           })
+        self.assertNotEqual(response2.json()['code'], 0)
+        response2 = c.post('/api/a/activity/delite',
+                           {
+                               'id': 0
+                           })
+        self.assertNotEqual(response2.json()['code'], 0)
+        response2 = c.post('/api/a/activity/delite',
+                           {
+                               'id': '0'
+                           })
+        self.assertNotEqual(response2.json()['code'], 0)
 
 class ActivityCreateTest(TestCase):
     def setUp(self):
         self.url = '/api/a/activity/create'
         User = get_user_model()
         User.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
-        self.starttime = datetime.now().timestamp()
-        self.endtime = datetime.now().timestamp()
-        self.bookstart = datetime.now().timestamp()
-        self.bookend = datetime.now().timestamp()
+        # self.starttime = int(datetime.now().timestamp())
+        # self.endtime = int(datetime.now().timestamp())
+        # self.bookstart = int(datetime.now().timestamp())
+        # self.bookend = int(datetime.now().timestamp())
+
+        self.starttime = int(datetime(1999, 9, 11, 2, 31, 0).timestamp())
+        self.endtime = int(datetime(2000, 11, 8, 23, 59, 59).timestamp())
+        self.bookstart = int(datetime(1997, 12, 9, 8, 8, 8).timestamp())
+        self.bookend = int(datetime(2000, 11, 8, 0, 0, 0).timestamp())
+        # already an activity in db
+        Activity.objects.create(name='testac2',
+                                key='thisisamaxlengthof64key',
+                                description='testdesc2',
+                                start_time=self.starttime,
+                                end_time=self.endtime,
+                                place='testplace2',
+                                book_start=self.bookstart,
+                                book_end=self.bookend,
+                                total_tickets=200,
+                                status=1,
+                                pic_url='http://thisisaurl.com',
+                                remain_tickets=199
+                                )
+
 
     def testPost(self):
         c = Client()
@@ -220,6 +283,85 @@ class ActivityCreateTest(TestCase):
                })
         succresponse = c.post(self.url, postjson)
         self.assertEqual(succresponse.json()['code'], 0)
+        #test data field
+        self.assertEqual(succresponse.json()['data'], 2)
+        # check db
+        obj = Activity.objects.get(id = succresponse.json()['data'])
+        self.assertNotEqual(obj, None)
+        self.assertEqual(postjson['name'], obj.name)
+        self.assertEqual(postjson['key'], obj.key)
+        self.assertEqual(postjson['description'], obj.description)
+        self.assertEqual(postjson['place'], obj.place)
+        self.assertEqual(postjson['totalTickets'], obj.total_tickets)
+        self.assertEqual(postjson['picUrl'], obj.pic_url)
+        self.assertEqual(postjson['startTime'], int(obj.start_time.timestamp()))
+        self.assertEqual(postjson['endTime'], int(obj.end_time.timestamp()))
+        self.assertEqual(postjson['bookStart'], int(obj.book_start.timestamp()))
+        self.assertEqual(postjson['bookEnd'], int(obj.book_end.timestamp()))
+
+    # some more tests
+        postjsonbs = {
+            'name': 'sitest0',
+            'key': 'thisisaxiajibabiandekey',
+            'place': 'testplace1',
+            'description': 'testdesc1',
+            'picUrl': 'http://ycdfwzy.avi',
+            'startTime': self.endtime,
+            'endTime': self.starttime,
+            'bookStart': self.bookstart,
+            'bookEnd': self.bookend,
+            'totalTickets': 100,
+            'status': 0
+        }
+        # endtime < starttime: should return false
+        postjson2 = postjsonbs
+        postjson2['startTime'] = self.endtime
+        postjson2['endTime'] = self.starttime
+        response2 = c.post(self.url, postjson2)
+        self.assertNotEqual(response2.json()['code'], 0)
+        # bookend < bookstart: should return false
+        postjson2 = postjsonbs
+        postjson2['bookStart'] = self.bookend
+        postjson2['bookEnd'] = self.bookstart
+        response2 = c.post(self.url, postjson2)
+        self.assertNotEqual(response2.json()['code'], 0)
+        # totalTickets < 0: should return false
+        postjson2 = postjsonbs
+        postjson2['totalTickets'] = -1
+        response2 = c.post(self.url, postjson2)
+        self.assertNotEqual(response2.json()['code'], 0)
+        # length of [key] exceed
+        postjson2 = postjsonbs
+        postjson2['key'] = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        response2 = c.post(self.url, postjson2)
+        self.assertNotEqual(response2.json()['code'], 0)
+        # timestamp test
+        postjson2 = postjsonbs
+        postjson2['startTime'] = 100000
+        postjson2['endTime'] = 100000000.1415926
+        response2 = c.post(self.url, postjson2)
+        self.assertNotEqual(response2.json()['code'], 0)
+        # invalid value of status field
+        postjson2 = postjsonbs
+        postjson2['status'] = 2
+        response2 = c.post(self.url, postjson2)
+        self.assertNotEqual(response2.json()['code'], 0)
+        # multiple language test
+            # 1
+        postjson2 = postjsonbs
+        postjson2['name'] = '讲中文'
+        postjson2['description'] = '讲中文'
+        response2 = c.post(self.url, postjson2)
+        self.assertEqual(response2.json()['code'], 0)
+        self.assertEqual(response2.json()['data'], 3)
+            # 2
+        postjson2 = postjsonbs
+        postjson2['name'] = '日本語で話す'
+        postjson2['description'] = '日本語で話す'
+        response2 = c.post(self.url, postjson2)
+        self.assertEqual(response2.json()['code'], 0)
+        self.assertEqual(response2.json()['data'], 4)
+
 
 class ImageUploadTest(TestCase):
     def setUp(self):
