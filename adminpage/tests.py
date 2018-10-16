@@ -87,7 +87,7 @@ class LogoutTest(TestCase):
                })
         succresponse = c.post('/api/a/logout',{'sb':'sb'})
         self.assertEqual(succresponse.json()['code'], 0)
-        failresponse = c.post('api/a/logout',{})
+        failresponse = c.post('/api/a/logout',{'sb':'sb'})
         self.assertNotEqual(failresponse.json()['code'], 0)
         # default status test
         c2 = Client()
@@ -370,6 +370,11 @@ class ActivityCreateTest(TestCase):
         # self.assertEqual(response2.json()['code'], 0)
         # self.assertEqual(response2.json()['data'], 4)
 
+def toStr(bts):
+    rtn = ''
+    for x in bts:
+        rtn += chr(x)
+    return rtn
 
 class ImageUploadTest(TestCase):
     def setUp(self):
@@ -381,7 +386,9 @@ class ImageUploadTest(TestCase):
     def testPost(self):
         c = Client()
         imgf = open(self.imgpath, 'rb')
-        imgstr = base64.b64encode(imgf.read())
+        imgstr = toStr(base64.b64encode(imgf.read()))
+        print('label')
+        print(imgstr)
         postjson = {
             'image': imgstr
         }
