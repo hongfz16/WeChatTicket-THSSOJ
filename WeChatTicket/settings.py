@@ -113,6 +113,7 @@ DATABASES = {
         'PASSWORD': CONFIGS['DB_PASS'],
         'HOST': CONFIGS['DB_HOST'],
         'PORT': CONFIGS['DB_PORT'],
+        'TEST': {'CHARSET':'utf8',},
     }
 }
 
