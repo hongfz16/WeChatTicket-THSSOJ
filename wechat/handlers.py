@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 from wechat.wrapper import WeChatHandler
-
-
+from wechat.models import User, Activity, Ticket
+from WeChatTicket import settings
 __author__ = "Epsirom"
 
 
@@ -66,3 +66,21 @@ class BookEmptyHandler(WeChatHandler):
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
 
+class CheckTicketHandler(WeChatHandler):
+    def check(self):
+        return self.is_event_click(self.view.event_keys['get_ticket']) or self.is_text('查票')
+
+    def handle(self):
+        opn_id=self.user.open_id
+        stu_id=User.objects.get(open_id=opn_id)
+        if len(stu_id)!=10:
+            chosen_tickets=Ticket.objects.filter(student_id=stu_id)
+            info_menu=[]
+            for ticket in chosen_tickets:
+                info_menu.append({'Title':ticket.activity.name,
+                                  'Description':ticket.activity.description,
+                                  'Url':self.url_ticket(opn_id, ticket.unique_id)})
+            return self.reply_news(info_menu)
+
+    def url_ticket(self, opn_id, unq_id):
+        return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
