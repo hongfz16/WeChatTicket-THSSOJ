@@ -27,7 +27,7 @@ def getCurrentTime():
 def get_index(id, buttons):
     book_header = CustomWeChatView.event_keys['book_header']
     for i in range(len(buttons)):
-        if buttons['key'] == book_header+str(id):
+        if buttons[i]['key'] == book_header+str(id):
             return i+1
     return 0
 
