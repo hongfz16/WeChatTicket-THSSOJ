@@ -88,7 +88,8 @@ class BookTicketsHandler(WeChatHandler):
 
         with transaction.atomic():
             try:
-                activity = Activity.objects.select_for_update().get(id=self.id)
+                activity = Activity.objects.select_for_update().get(id=self.id,
+                                                                    status=Activity.STATUS_PUBLISHED)
             except:
                 return self.reply_text('未找到该活动!')
 
@@ -106,7 +107,6 @@ class BookTicketsHandler(WeChatHandler):
             activity.remain_tickets -= 1
             activity.save()
 
-        # User.objects.get(open_id=self.input['open_id'])
         Ticket.objects.create(student_id=student_id,
                               unique_id=str(uuid.uuid1()),
                               activity=activity,
@@ -116,23 +116,30 @@ class BookTicketsHandler(WeChatHandler):
 
 class CheckTicketHandler(WeChatHandler):
     def check(self):
+
         return self.is_event_click(self.view.event_keys['get_ticket']) or self.is_text('查票')
 
     def handle(self):
+        print('check ticket')
         if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
         opn_id=self.user.open_id
         stu_id=self.user.student_id #User.objects.get(open_id=opn_id).student_id
         info_menu = []
+
         if len(stu_id)==10:
             chosen_tickets=Ticket.objects.filter(student_id=stu_id)
             for ticket in chosen_tickets:
+                print(ticket.unique_id)
                 info_menu.append({'Title':ticket.activity.name,
                                   'Description':ticket.activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
         return self.reply_news(info_menu)
 
     def url_ticket(self, opn_id, unq_id):
+        print("url_ticket")
+        print(opn_id)
+        print(unq_id)
         return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
 
 
