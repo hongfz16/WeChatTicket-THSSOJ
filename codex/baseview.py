@@ -17,13 +17,16 @@ class BaseView(View):
     logger = logging.getLogger('View')
 
     def dispatch(self, request, *args, **kwargs):
+        print('baseview dispatch')
         self.request = request
         return self.do_dispatch(*args, **kwargs)
 
     def do_dispatch(self, *args, **kwargs):
+        print('baseview do dispatch')
         raise NotImplementedError('You should implement do_dispatch() in sub-class of BaseView')
 
     def http_method_not_allowed(self, *args, **kwargs):
+        print('baseview method not allowed')
         return super(BaseView, self).http_method_not_allowed(self.request, *args, **kwargs)
 
 
@@ -32,6 +35,7 @@ class APIView(BaseView):
     logger = logging.getLogger('API')
 
     def do_dispatch(self, *args, **kwargs):
+        print('apiview do dispatch')
         self.input = self.query or self.body
         handler = getattr(self, self.request.method.lower(), None)
         if not callable(handler):
@@ -40,10 +44,12 @@ class APIView(BaseView):
 
     @property
     def body(self):
+        print('apiview body')
         return json.loads(self.request.body.decode() or '{}')
 
     @property
     def query(self):
+        print('apiview query')
         d = getattr(self.request, self.request.method, None)
         if d:
             d = d.dict()
@@ -53,6 +59,7 @@ class APIView(BaseView):
         return d
 
     def api_wrapper(self, func, *args, **kwargs):
+        print('apiview apiwrapper')
         code = 0
         msg = ''
         result = None
@@ -84,6 +91,7 @@ class APIView(BaseView):
         return HttpResponse(response, content_type='application/json')
 
     def check_input(self, *keys):
+        print('apiview checkinput')
         for k in keys:
             if k not in self.input:
                 raise InputError('Field "%s" required' % (k, ))
