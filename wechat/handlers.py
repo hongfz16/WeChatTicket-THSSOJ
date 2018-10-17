@@ -124,8 +124,7 @@ class BookTicketsHandler(WeChatHandler):
 
         with transaction.atomic():
             try:
-                activity = Activity.objects.select_for_update().get(id=self.id,
-                                                                    status=Activity.STATUS_PUBLISHED)
+                activity = Activity.objects.select_for_update().get(id=self.id)
             except:
                 return self.reply_text('未找到该活动!')
 
