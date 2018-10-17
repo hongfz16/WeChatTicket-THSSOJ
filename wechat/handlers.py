@@ -65,3 +65,12 @@ class BookEmptyHandler(WeChatHandler):
 
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
+
+
+class BookWhatHandler(WeChatHandler):
+
+    def check(self):
+        return self.is_event_click(self.view.event_keys['book_what'])
+
+    def handle(self):
+        return self.reply_text('click book what')
