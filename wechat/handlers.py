@@ -69,6 +69,31 @@ class BookEmptyHandler(WeChatHandler):
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
 
+class BounceHandler(WeChatHandler):
+    def check(self):
+        input_list = self.input['Content'].split(' ')
+        if input_list[0]=='退票':
+            return True
+        else:
+            return False
+    def handle(self):
+        input_list=self.input['Content'].split(' ')
+        act_key=input_list[1]
+        if len(act_key):
+            with transaction.atomic():
+                try:
+                    tgt_activity=Activity.objects.get(key=act_key)
+                    chosen_ticket=Ticket.objects.get(activity=tgt_activity, student_id=self.user.student_id)
+                    if chosen_ticket:
+                        chosen_ticket.delete()
+                        tgt_activity.remain_tickets+=1
+                        tgt_activity.save()
+                        return self.reply_text('退票成功')
+                    else:
+                        return self.reply_text('未拥有活动对于票')
+                except:
+                    return self.reply_text('未找到对应活动')
+        return self.reply_text('请输入正确退票指令')
 
 class BookTicketsHandler(WeChatHandler):
     def check(self):
