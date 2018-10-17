@@ -151,11 +151,13 @@ class imageUpload(APIView):
                 except:
                     raise ValidateError('create image path error')
             try:
-                image_path = tgt_path + '/' + str(uuid.uuid1()) + '.png'
+                unique_str = str(uuid.uuid1())
+                return_path = '/images/'+unique_str+'.png'
+                image_path = tgt_path + '/' + unique_str + '.png'
                 img_file = open(image_path, 'wb')
                 img_file.write(ori_content[0].read())
                 img_file.close()
-                total_url = get_url(image_path)
+                total_url = get_url(return_path)
                 return total_url
             except:
                 raise ValidateError('save image error')
