@@ -71,7 +71,6 @@ class BookEmptyHandler(WeChatHandler):
 
 
 class BookTicketsHandler(WeChatHandler):
-
     def check(self):
         print("BookTicketsHandler check")
         for button in self.view.menu['button'][-1]['sub_button']:
@@ -123,9 +122,9 @@ class CheckTicketHandler(WeChatHandler):
         if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
         opn_id=self.user.open_id
-        stu_id=self.user.student_id#User.objects.get(open_id=opn_id).student_id
+        stu_id=self.user.student_id #User.objects.get(open_id=opn_id).student_id
         info_menu = []
-        if len(stu_id)!=10:
+        if len(stu_id)==10:
             chosen_tickets=Ticket.objects.filter(student_id=stu_id)
             for ticket in chosen_tickets:
                 info_menu.append({'Title':ticket.activity.name,
