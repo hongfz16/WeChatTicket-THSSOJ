@@ -113,6 +113,10 @@ class activityCreate(APIView):
                 raise InputError("endTime < startTime")
             if int(self.input['totalTickets']) < 0:
                 raise InputError("totalTickets < 0")
+            if len(self.input['key'])>64:
+                raise InputError('key is too long')
+            if int(self.input['status'])<-1 or int(self.input['status'])>1:
+                raise InputError('status error')
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                                      description=self.input['description'], pic_url=self.input['picUrl'],
@@ -143,14 +147,17 @@ class imageUpload(APIView):
             if not os.path.exists(tgt_path):
                 try:
                     os.makedirs(tgt_path)
-                    image_path=tgt_path+'/'+str(uuid.uuid1())+'.png'
-                    img_file=open(image_path, 'w')
-                    img_file.write(ori_content)
-                    img_file.close()
-                    total_url=get_url(image_path)
-                    return total_url
                 except:
-                    raise ValidateError('save image error')
+                    raise ValidateError('create image path error')
+            try:
+                image_path = tgt_path + '/' + str(uuid.uuid1()) + '.png'
+                img_file = open(image_path, 'wb')
+                img_file.write(ori_content[0].read())
+                img_file.close()
+                total_url = get_url(image_path)
+                return total_url
+            except:
+                raise ValidateError('save image error')
         else:
             raise ValidateError('user not logged')
 
@@ -324,6 +331,7 @@ class activityMenu(APIView):
             raise LogicError('get activity by id error!')
 
         try:
+            print(res)
             CustomWeChatView.update_menu(res)
         except:
             raise LogicError('update Menu failed!')

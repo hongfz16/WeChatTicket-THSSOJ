@@ -9,9 +9,9 @@ from wechat.models import User, Activity, Ticket
 class TestUBind(TestCase):
     def setUp(self):
         self.url = '/api/u/user/bind'
-        User.objects.create(open_id = 'ycdfwzy', student_id='1234567890')
-        User.objects.create(open_id = 'wzsxzjl', student_id='9876543210')
-        User.objects.create(open_id = 'klsshfz', student_id='7894561230')
+        User.objects.create(open_id = 'ycdfwzy', student_id='default_wzy')
+        User.objects.create(open_id = 'wzsxzjl', student_id='default_zjl')
+        User.objects.create(open_id = 'klsshfz', student_id='default_hfz')
 
     def testUserNotExist(self):
 # test nobody
@@ -61,7 +61,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'klsshfz'
                          })
-        self.assertEqual(response.json()['data'], '7894561230')
+        self.assertEqual(response.json()['data'], 'default_hfz')
 
 # test zjl
     # invalid student id
@@ -115,7 +115,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'wzsxzjl'
                          })
-        self.assertEqual(response.json()['data'], '9876543210')
+        self.assertEqual(response.json()['data'], 'default_zjl')
 
 # test wzy
     # success
@@ -134,6 +134,14 @@ class TestUBind(TestCase):
                                'password': 'jstql'
                           })
         self.assertEqual(response.json()['code'], 0)
+
+
+        response = c.get(self.url,
+                          {
+                              'openid': 'ycdfwzy'
+                          })
+        self.assertEqual(response.json()['code'], 0)
+        self.assertEqual(response.json()['data'], '1234567891')
 
 class TestUActivity(TestCase):
     def setUp(self):
