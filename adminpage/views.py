@@ -27,7 +27,7 @@ def getCurrentTime():
 def get_index(id, buttons):
     book_header = CustomWeChatView.event_keys['book_header']
     for i in range(len(buttons)):
-        if buttons['key'] == book_header+str(id):
+        if buttons[i]['key'] == book_header+str(id):
             return i+1
     return 0
 
@@ -117,7 +117,6 @@ class activityCreate(APIView):
                 raise InputError('key is too long')
             if int(self.input['status'])<-1 or int(self.input['status'])>1:
                 raise InputError('status error')
-            # if len(self.input['key']) >
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                                      description=self.input['description'], pic_url=self.input['picUrl'],
