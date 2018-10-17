@@ -69,9 +69,33 @@ class BookEmptyHandler(WeChatHandler):
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
 
+class BounceHandler(WeChatHandler):
+    def check(self):
+        input_list = self.input['Content'].split(' ')
+        if input_list[0]=='退票':
+            return True
+        else:
+            return False
+    def handle(self):
+        input_list=self.input['Content'].split(' ')
+        act_key=input_list[1]
+        if len(act_key):
+            with transaction.atomic():
+                try:
+                    tgt_activity=Activity.objects.get(key=act_key)
+                    chosen_ticket=Ticket.objects.get(activity=tgt_activity, student_id=self.user.student_id)
+                    if chosen_ticket:
+                        chosen_ticket.delete()
+                        tgt_activity.remain_tickets+=1
+                        tgt_activity.save()
+                        return self.reply_text('退票成功')
+                    else:
+                        return self.reply_text('未拥有活动对于票')
+                except:
+                    return self.reply_text('未找到对应活动')
+        return self.reply_text('请输入正确退票指令')
 
 class BookTicketsHandler(WeChatHandler):
-
     def check(self):
         print("BookTicketsHandler check")
         for button in self.view.menu['button'][-1]['sub_button']:
@@ -132,11 +156,10 @@ class CheckTicketHandler(WeChatHandler):
         if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
         opn_id=self.user.open_id
-        stu_id=self.user.student_id#User.objects.get(open_id=opn_id).student_id
+        stu_id=self.user.student_id #User.objects.get(open_id=opn_id).student_id
         info_menu = []
-        print(len(stu_id))
-        if len(stu_id)==10:
 
+        if len(stu_id)==10:
             chosen_tickets=Ticket.objects.filter(student_id=stu_id)
             for ticket in chosen_tickets:
                 print(ticket.unique_id)
