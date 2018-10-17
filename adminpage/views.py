@@ -273,6 +273,11 @@ class activityCheckin(APIView):
                     if ticket.activity.name==activity.name:
                         ticket_info['ticket']=ticket.unique_id
                         ticket_info['studentId']=ticket.student_id
+                        if ticket.status==Ticket.STATUS_VALID:
+                            ticket.status=Ticket.STATUS_USED
+                            ticket.save()
+                        else:
+                            raise ValidateError('ticket used')
                         return ticket_info
                     else:
                         raise LogicError('not match')
@@ -284,6 +289,11 @@ class activityCheckin(APIView):
                     if ticket.activity.name==activity.name:
                         ticket_info['ticket']=ticket.unique_id
                         ticket_info['studentId']=ticket.student_id
+                        if ticket.status==Ticket.STATUS_VALID:
+                            ticket.status=Ticket.STATUS_USED
+                            ticket.save()
+                        else:
+                            raise ValidateError('ticket used')
                         return ticket_info
                     else:
                         raise LogicError('not match')

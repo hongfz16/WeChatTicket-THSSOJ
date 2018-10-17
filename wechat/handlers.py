@@ -154,11 +154,12 @@ class CheckTicketHandler(WeChatHandler):
 
         if len(stu_id)==10:
             chosen_tickets=Ticket.objects.filter(student_id=stu_id)
-            for ticket in chosen_tickets:
-                print(ticket.unique_id)
-                info_menu.append({'Title':ticket.activity.name,
-                                  'Description':ticket.activity.description,
-                                  'Url':self.url_ticket(opn_id, ticket.unique_id)})
+            if chosen_tickets:
+                for ticket in chosen_tickets:
+                    print(ticket.unique_id)
+                    info_menu.append({'Title':ticket.activity.name,
+                                      'Description':ticket.activity.description,
+                                      'Url':self.url_ticket(opn_id, ticket.unique_id)})
         return self.reply_news(info_menu)
 
     def url_ticket(self, opn_id, unq_id):
