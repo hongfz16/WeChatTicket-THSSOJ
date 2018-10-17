@@ -70,3 +70,6 @@ target/
 
 # Custom files
 /configs.json
+
+# migrations
+migrations
