@@ -69,6 +69,35 @@ class BookEmptyHandler(WeChatHandler):
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
 
+class BounceHandler(WeChatHandler):
+    def check(self):
+        if 'Content' in self.input:
+            input_list = self.input['Content'].split(' ')
+            if input_list[0]=='退票':
+                return True
+            else:
+                return False
+        return False
+
+    def handle(self):
+        print('bounce handler')
+        input_list=self.input['Content'].split(' ')
+        act_key=input_list[1]
+        if len(act_key):
+            with transaction.atomic():
+                try:
+                    tgt_activity=Activity.objects.get(key=act_key)
+                    chosen_ticket=Ticket.objects.get(activity=tgt_activity, student_id=self.user.student_id)
+                    if chosen_ticket:
+                        chosen_ticket.delete()
+                        tgt_activity.remain_tickets+=1
+                        tgt_activity.save()
+                        return self.reply_text('退票成功')
+                    else:
+                        return self.reply_text('未拥有活动对于票')
+                except:
+                    return self.reply_text('未找到对应活动')
+        return self.reply_text('请输入正确退票指令')
 
 class BookTicketsHandler(WeChatHandler):
     def check(self):
@@ -77,6 +106,13 @@ class BookTicketsHandler(WeChatHandler):
             if self.is_event_click(button['key']):
                 self.id = int(button['key'][len(self.view.event_keys['book_header']):])
                 return True
+        if 'Content' in self.input and\
+                self.input['Content'].startswith("抢票"):
+            activities = Activity.objects.all()
+            for activity in activities:
+                if self.is_text("抢票 "+activity.key):
+                    self.id = activity.id
+                    return True
         return False
 
     def handle(self):
@@ -88,8 +124,7 @@ class BookTicketsHandler(WeChatHandler):
 
         with transaction.atomic():
             try:
-                activity = Activity.objects.select_for_update().get(id=self.id,
-                                                                    status=Activity.STATUS_PUBLISHED)
+                activity = Activity.objects.select_for_update().get(id=self.id)
             except:
                 return self.reply_text('未找到该活动!')
 
@@ -134,6 +169,8 @@ class CheckTicketHandler(WeChatHandler):
                 info_menu.append({'Title':ticket.activity.name,
                                   'Description':ticket.activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
+        if len(info_menu) == 0:
+            return self.reply_text("你还没有票！")
         return self.reply_news(info_menu)
 
     def url_ticket(self, opn_id, unq_id):
