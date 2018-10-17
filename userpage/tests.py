@@ -9,9 +9,9 @@ from wechat.models import User, Activity, Ticket
 class TestUBind(TestCase):
     def setUp(self):
         self.url = '/api/u/user/bind'
-        User.objects.create(open_id = 'ycdfwzy')
-        User.objects.create(open_id = 'wzsxzjl')
-        User.objects.create(open_id = 'klsshfz')
+        User.objects.create(open_id = 'ycdfwzy', student_id='default_wzy')
+        User.objects.create(open_id = 'wzsxzjl', student_id='default_zjl')
+        User.objects.create(open_id = 'klsshfz', student_id='default_hfz')
 
     def testUserNotExist(self):
 # test nobody
@@ -61,7 +61,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'klsshfz'
                          })
-        self.assertEqual(response.json()['data'], '')
+        self.assertEqual(response.json()['data'], 'default_hfz')
 
 # test zjl
     # invalid student id
@@ -115,7 +115,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'wzsxzjl'
                          })
-        self.assertEqual(response.json()['data'], '')
+        self.assertEqual(response.json()['data'], 'default_zjl')
 
 # test wzy
     # success
@@ -129,10 +129,19 @@ class TestUBind(TestCase):
 
         response = c.post(self.url,
                           {
-                               'openid': 'ycdfwzy'
+                               'openid': 'ycdfwzy',
+                               'student_id': '1234567891',
+                               'password': 'jstql'
                           })
         self.assertEqual(response.json()['code'], 0)
-        self.assertEqual(response.json()['data'], '1234567890')
+
+
+        response = c.get(self.url,
+                          {
+                              'openid': 'ycdfwzy'
+                          })
+        self.assertEqual(response.json()['code'], 0)
+        self.assertEqual(response.json()['data'], '1234567891')
 
 class TestUActivity(TestCase):
     def setUp(self):
@@ -247,7 +256,7 @@ class TestUActivity(TestCase):
         self.assertEqual(js['place'], obj.place)
         self.assertEqual(js['bookStart'], int(obj.book_start.timestamp()))
         self.assertEqual(js['bookEnd'], int(obj.book_end.timestamp()))
-        self.assertEqual(js['totalTickets'], obj.tot_tickets)
+        self.assertEqual(js['totalTickets'], obj.total_tickets)
         self.assertEqual(js['picUrl'], obj.pic_url)
         self.assertEqual(js['remainTickets'], obj.remain_tickets)
         self.assertAlmostEqual(js['currentTime'], curTime, delta = 5)
@@ -255,7 +264,7 @@ class TestUActivity(TestCase):
 class TestUTicket(TestCase):
     def setUp(self):
         self.url = '/api/u/ticket/detail'
-        User.objects.create(open_id = 'ycdfwzy')
+        User.objects.create(open_id = 'ycdfwzy', student_id = '1234567890')
     # act 1
         Activity.objects.create(
             name = 'ycdfwzy',
@@ -315,7 +324,7 @@ class TestUTicket(TestCase):
         )
     # ticket2: success, a = 2, s = 0
         Ticket.objects.create(
-            student_id = '1234567890',
+            student_id = 'x234567890',
             unique_id = 'xyz',
             activity = Activity.objects.get(id = self.id2),
             status = 0
@@ -329,7 +338,7 @@ class TestUTicket(TestCase):
         )
     # ticket4: success, a = 1, s = 1
         Ticket.objects.create(
-            student_id = '1234567890',
+            student_id = 'x234567890',
             unique_id = 'dde',
             activity = Activity.objects.get(id = self.id1),
             status = 1
@@ -350,6 +359,7 @@ class TestUTicket(TestCase):
                              'openid': '',
                              'ticket': '123'
                          })
+        # print('why this work'+response.json()['data'])
         self.assertNotEqual(response.json()['code'], 0)
 
         response = c.get(self.url,
@@ -379,10 +389,17 @@ class TestUTicket(TestCase):
                              'openid': 'ycdfwzy'
                          })
         self.assertNotEqual(response.json()['code'], 0)
+        # response = c.get(self.url,
+        #                  {
+        #                      'openid': 'ycdfwzy',
+        #                      'ticket': 123
+        #                  })
+        # print('wrong json', response.json()['data'])
+        # self.assertNotEqual(response.json()['code'], 0)
         response = c.get(self.url,
                          {
                              'openid': 'ycdfwzy',
-                             'ticket': 123
+                             'ticket': 'dde'
                          })
         self.assertNotEqual(response.json()['code'], 0)
 
@@ -397,6 +414,8 @@ class TestUTicket(TestCase):
         js = response.json()['data']
         objT = Ticket.objects.get(unique_id = '123')
         objA = objT.activity
+        #print(type(js))
+        print('right json', response.json()['msg'])
         self.assertEqual(js['activityName'], objA.name)
         self.assertEqual(js['place'], objA.place)
         self.assertEqual(js['activityKey'], objA.key)

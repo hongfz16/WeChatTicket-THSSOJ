@@ -67,7 +67,7 @@ window.wrapDate = function (obj) {
                 parseInt(obj[key + '-day']),
                 parseInt(obj[key + '-hour']),
                 parseInt(obj[key + '-minute'])
-            );
+            ).valueOf()/1000;
             delete obj[key + '-year'];
             delete obj[key + '-month'];
             delete obj[key + '-day'];

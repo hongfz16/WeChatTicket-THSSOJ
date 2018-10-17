@@ -23,6 +23,7 @@ class UserBind(APIView):
         return User.get_by_openid(self.input['openid']).student_id
 
     def post(self):
+        print("UserBind post")
         self.check_input('openid', 'student_id', 'password')
         user = User.get_by_openid(self.input['openid'])
         self.validate_user()
@@ -38,7 +39,7 @@ class ActivityDetail(APIView):
                     activity_detail={}
                     activity_detail['name']=target_activity.name
                     activity_detail['key']=target_activity.key
-                    activity_detail['description']=target_activity.name
+                    activity_detail['description']=target_activity.description
                     activity_detail['startTime']=int(target_activity.start_time.timestamp())
                     activity_detail['endTime'] = int(target_activity.end_time.timestamp())
                     activity_detail['place'] = target_activity.place
@@ -58,14 +59,21 @@ class ActivityDetail(APIView):
 
 class TicketDetail(APIView):
     def get(self):
+        self.check_input('openid', 'ticket')
         try:
-            std_id=self.input['openid']
+            opn_id=self.input['openid']
             unq_id=self.input['ticket']
             ticket_detail={}
+            if not isinstance(unq_id, str):
+                raise InputError('wrong input type')
             try:
                 ticket=Ticket.objects.get(unique_id=unq_id)
+                std_id = User.objects.get(open_id=opn_id).student_id
+                # if self.input['openid']=='':
+                #     print('why this works ', User.objects.get(open_id=opn_id))
+
                 if ticket.student_id == std_id:
-                    ticket_detail['ticketName'] = ticket.activity.name
+                    ticket_detail['activityName'] = ticket.activity.name
                     ticket_detail['place'] = ticket.activity.place
                     ticket_detail['activityKey'] = ticket.activity.key
                     ticket_detail['uniqueId'] =ticket.unique_id
@@ -77,6 +85,6 @@ class TicketDetail(APIView):
                 else:
                     raise BaseError(code=4, msg='not match')
             except:
-                ValidateError('not valid ticket')
+                raise ValidateError('not valid ticket')
         except:
             raise InputError('input message error')
