@@ -1,5 +1,6 @@
 # # Create your tests here.
 #
+from datetime import datetime
 from django.test import TestCase
 from django.test import Client
 from wechat.models import *
@@ -28,8 +29,9 @@ class TryTest(TestCase):
         # b'<xml><ToUserName><![CDATA[gh_5e0443904265]]></ToUserName>\n<FromUserName><![CDATA[ojM6q1V-l8RyGrzjrirdOdkcwmKQ]]></FromUserName>\n<CreateTime>1539793148</CreateTime>\n<MsgType><![CDATA[text]]></MsgType>\n<Content><![CDATA[\xe6\x8a\xa2\xe7\xa5\xa8 \xe6\xa8\xa1\xe6\x8b\x9f\xe8\xb5\x9b]]></Content>\n<MsgId>6613361214134013343</MsgId>\n</xml>'
 
         response = c.post('wechat/??signature=b632388bc042d3d0dc6e490ef43e053d4dd5db95&timestamp=1539793148&nonce=1217778196&openid=ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
-                          b'<xml><ToUserName><![CDATA[gh_5e0443904265]]></ToUserName>\n<FromUserName><![CDATA[ojM6q1V-l8RyGrzjrirdOdkcwmKQ]]></FromUserName>\n<CreateTime>1539793148</CreateTime>\n<MsgType><![CDATA[text]]></MsgType>\n<Content><![CDATA[\xe6\x8a\xa2\xe7\xa5\xa8 \xe6\xa8\xa1\xe6\x8b\x9f\xe8\xb5\x9b]]></Content>\n<MsgId>6613361214134013343</MsgId>\n</xml>',
+                          b'<xml><ToUserName><![CDATA[gh_5e0443904265]]></ToUserName>\n<FromUserName><![CDATA[ojM6q1V-l8RyGrzjrirdOdkcwmKQ]]></FromUserName>\n<CreateTime>1539793148</CreateTime>\n<MsgType><![CDATA[text]]></MsgType>\n<Content><![CDATA[\xe6\x8a\xa2\xe7\xa5\xa8 wzy]]></Content>\n<MsgId>6613361214134013343</MsgId>\n</xml>',
                           content_type='text/xml')
+        self.assertEqual(Activity.objects.get(name = 'ycdfwzy').remain_tickets, 49)
 #        response = c.get('/api/u/user/bind', {'openid': 'xyz'})
 #        self.assertEqual(response.status_code, 200)
 #        self.assertEqual(response.json()['data'], '')
