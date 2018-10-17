@@ -78,6 +78,13 @@ class BookTicketsHandler(WeChatHandler):
             if self.is_event_click(button['key']):
                 self.id = int(button['key'][len(self.view.event_keys['book_header']):])
                 return True
+        if 'Content' in self.input and\
+                self.input['Content'].startswith("抢票"):
+            activities = Activity.objects.all()
+            for activity in activities:
+                if self.is_text("抢票 "+activity.key):
+                    self.id = activity.id
+                    return True
         return False
 
     def handle(self):
