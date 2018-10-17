@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 #
+from datetime import datetime
+from django.utils import timezone
 from wechat.wrapper import WeChatHandler
-
+from wechat.models import User, Activity, Ticket
 
 __author__ = "Epsirom"
 
@@ -74,20 +76,17 @@ class BookWhatHandler(WeChatHandler):
 
     def handle(self):
         # return self.reply_text('click book what')
-        return self.reply_news([
-            {
-                'Title': '1',
-                'Description': self.get_message('help_description'),
-                'Url': self.url_help(),
-            },
-            {
-                'Title': '2',
-                'Description': self.get_message('help_description'),
-                'Url': self.url_help(),
-            },
-            {
-                'Title': '3',
-                'Description': self.get_message('help_description'),
-                'Url': self.url_activity(),
-            }
-        ])
+        dateNow = timezone.now()
+
+        objs = Activity.objects.filter(
+            book_end__gt = dateNow,
+            status=Activity.STATUS_PUBLISHED
+        ).order_by('start_time')
+        arts = []
+        for obj in objs:
+            arts.append({
+                'Title': obj.name,
+                'Description': obj.description,
+                'Url': self.url_activity(obj.id)
+            })
+        return self.reply_news(arts)
