@@ -77,6 +77,7 @@ class CustomWeChatView(WeChatView):
             book_btn['sub_button'].append({
                 'type': 'click',
                 'name': act['name'],
+                # 'dbid': act['id'],
                 'key': cls.event_keys['book_header'] + str(act['id']),
             })
 
