@@ -218,6 +218,7 @@ class WeChatView(BaseView):
             return self.http_method_not_allowed()
 
     def handle_wechat_msg(self):
+        print('handle_wechat_msg')
         msg = self.parse_msg_xml(ET.fromstring(self.request.body))
         if 'FromUserName' not in msg:
             return self.error_message_handler(self, msg, None).handle()
@@ -236,6 +237,7 @@ class WeChatView(BaseView):
 
     @classmethod
     def parse_msg_xml(cls, root_elem):
+        print('parse_msg_xml')
         msg = dict()
         if root_elem.tag == 'xml':
             for child in root_elem:
