@@ -142,22 +142,28 @@ class imageUpload(APIView):
         if self.request.user.is_authenticated():
             self.check_input('image')
             ori_content=self.input['image']
+            print(type(ori_content[0]))
 
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
             if not os.path.exists(tgt_path):
                 try:
                     os.makedirs(tgt_path)
-                    image_path=tgt_path+'/'+str(uuid.uuid1())+'.png'
-                    img_file=open(image_path, 'w')
-                    img_file.write(ori_content)
-                    img_file.close()
-                    total_url=get_url(image_path)
-                    return total_url
                 except:
-                    raise ValidateError('save image error')
+                    raise ValidateError('create image path error')
+            try:
+                image_path = tgt_path + '/' + str(uuid.uuid1()) + '.png'
+                img_file = open(image_path, 'wb')
+                img_file.write(ori_content[0].read())
+                img_file.close()
+                total_url = get_url(image_path)
+                return total_url
+            except:
+                raise ValidateError('save image error')
         else:
+            print('here')
             raise ValidateError('user not logged')
+        print('out')
 
 class activityDetail(APIView):
     def get(self):
