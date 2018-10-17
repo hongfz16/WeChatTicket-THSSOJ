@@ -142,7 +142,6 @@ class imageUpload(APIView):
         if self.request.user.is_authenticated():
             self.check_input('image')
             ori_content=self.input['image']
-            print(type(ori_content[0]))
 
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
@@ -161,9 +160,7 @@ class imageUpload(APIView):
             except:
                 raise ValidateError('save image error')
         else:
-            print('here')
             raise ValidateError('user not logged')
-        print('out')
 
 class activityDetail(APIView):
     def get(self):
