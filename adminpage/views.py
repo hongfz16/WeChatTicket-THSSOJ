@@ -113,7 +113,6 @@ class activityCreate(APIView):
                 raise InputError("endTime < startTime")
             if int(self.input['totalTickets']) < 0:
                 raise InputError("totalTickets < 0")
-            # if len(self.input['key']) >
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                                      description=self.input['description'], pic_url=self.input['picUrl'],
