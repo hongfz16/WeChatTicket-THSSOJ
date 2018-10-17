@@ -73,4 +73,21 @@ class BookWhatHandler(WeChatHandler):
         return self.is_event_click(self.view.event_keys['book_what'])
 
     def handle(self):
-        return self.reply_text('click book what')
+        # return self.reply_text('click book what')
+        return self.reply_news([
+            {
+                'Title': '1',
+                'Description': self.get_message('help_description'),
+                'Url': self.url_help(),
+            },
+            {
+                'Title': '2',
+                'Description': self.get_message('help_description'),
+                'Url': self.url_help(),
+            },
+            {
+                'Title': '3',
+                'Description': self.get_message('help_description'),
+                'Url': self.url_help(),
+            }
+        ])
