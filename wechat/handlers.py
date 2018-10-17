@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 from wechat.wrapper import WeChatHandler
+from wechat.models import *
+from django.db import transaction
+import uuid
 
 
 __author__ = "Epsirom"
@@ -70,7 +73,43 @@ class BookEmptyHandler(WeChatHandler):
 class BookTicketsHandler(WeChatHandler):
 
     def check(self):
-        pass
+        print("BookTicketsHandler check")
+        for button in self.view.menu['button'][-1]['sub_button']:
+            if self.is_event_click(button['key']):
+                self.id = int(button['key'][len(self.view.event_keys['book_header']):])
+                return True
+        return False
 
     def handle(self):
-        pass
+        print("BookTicketsHandler handle")
+        # print()
+        if self.user.student_id == '':
+            return self.reply_text("请先绑定学号！")
+        student_id = int(self.user.student_id)
+
+        with transaction.atomic():
+            try:
+                activity = Activity.objects.select_for_update().get(id=self.id)
+            except:
+                return self.reply_text('未找到该活动!')
+
+            if int(activity.book_start.timestamp()) > int(self.input['CreateTime']):
+                return self.reply_text('抢票未开始!')
+            if int(activity.book_end.timestamp()) < int(self.input['CreateTime']):
+                return self.reply_text('抢票已结束!')
+
+            ticket = Ticket.objects.filter(student_id=student_id,
+                                           activity=activity)
+            if len(ticket) > 0:
+                return self.reply_text('你已经抢到票了，请不要重复抢票！')
+            if activity.remain_tickets <= 0:
+                return self.reply_text('抱歉，没票啦！')
+            activity.remain_tickets -= 1
+            activity.save()
+
+        # User.objects.get(open_id=self.input['open_id'])
+        Ticket.objects.create(student_id=student_id,
+                              unique_id=str(uuid.uuid1()),
+                              activity=activity,
+                              status=Ticket.STATUS_VALID)
+        return self.reply_text('恭喜你！抢到《'+activity.name+'》的票啦~')

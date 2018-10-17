@@ -72,4 +72,4 @@ target/
 /configs.json
 
 # migrations
-migrations
+*/migrations
