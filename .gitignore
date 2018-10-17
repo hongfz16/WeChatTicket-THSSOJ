@@ -1,6 +1,6 @@
 # Mac DS Store file
 .DS_Store
-.png
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
