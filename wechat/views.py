@@ -16,6 +16,7 @@ class CustomWeChatView(WeChatView):
         BindAccountHandler,
         BookEmptyHandler,
         BookTicketsHandler,
+        CheckTicketHandler
     ]
     error_message_handler = ErrorHandler
     default_handler = DefaultHandler

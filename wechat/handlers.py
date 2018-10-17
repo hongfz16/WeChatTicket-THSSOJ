@@ -4,9 +4,8 @@ from wechat.wrapper import WeChatHandler
 from wechat.models import *
 from django.db import transaction
 import uuid
+from WeChatTicket import settings
 
-
-__author__ = "Epsirom"
 
 
 class ErrorHandler(WeChatHandler):
@@ -69,7 +68,6 @@ class BookEmptyHandler(WeChatHandler):
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
 
-
 class BookTicketsHandler(WeChatHandler):
 
     def check(self):
@@ -83,7 +81,7 @@ class BookTicketsHandler(WeChatHandler):
     def handle(self):
         print("BookTicketsHandler handle")
         # print()
-        if self.user.student_id == '':
+        if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
         student_id = int(self.user.student_id)
 
@@ -113,3 +111,26 @@ class BookTicketsHandler(WeChatHandler):
                               activity=activity,
                               status=Ticket.STATUS_VALID)
         return self.reply_text('恭喜你！抢到《'+activity.name+'》的票啦~')
+
+
+class CheckTicketHandler(WeChatHandler):
+    def check(self):
+        return self.is_event_click(self.view.event_keys['get_ticket']) or self.is_text('查票')
+
+    def handle(self):
+        if self.user.student_id is None:
+            return self.reply_text("请先绑定学号！")
+        opn_id=self.user.open_id
+        stu_id=self.user.student_id#User.objects.get(open_id=opn_id).student_id
+        info_menu = []
+        if len(stu_id)!=10:
+            chosen_tickets=Ticket.objects.filter(student_id=stu_id)
+            for ticket in chosen_tickets:
+                info_menu.append({'Title':ticket.activity.name,
+                                  'Description':ticket.activity.description,
+                                  'Url':self.url_ticket(opn_id, ticket.unique_id)})
+        return self.reply_news(info_menu)
+
+    def url_ticket(self, opn_id, unq_id):
+        return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
+
