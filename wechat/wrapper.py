@@ -204,6 +204,7 @@ class WeChatView(BaseView):
         return self.lib.check_signature(query['signature'], query['timestamp'], query['nonce'])
 
     def do_dispatch(self, *args, **kwargs):
+        printf("si-response: ", self.response.body)
         if not settings.IGNORE_WECHAT_SIGNATURE and not self._check_signature():
             self.logger.error('Check WeChat signature failed')
             raise Http404()
