@@ -9,9 +9,9 @@ from wechat.models import User, Activity, Ticket
 class TestUBind(TestCase):
     def setUp(self):
         self.url = '/api/u/user/bind'
-        User.objects.create(open_id = 'ycdfwzy', student_id='')
-        User.objects.create(open_id = 'wzsxzjl', student_id='')
-        User.objects.create(open_id = 'klsshfz', student_id='')
+        User.objects.create(open_id = 'ycdfwzy', student_id='default_wzy')
+        User.objects.create(open_id = 'wzsxzjl', student_id='default_zjl')
+        User.objects.create(open_id = 'klsshfz', student_id='default_hfz')
 
     def testUserNotExist(self):
 # test nobody
@@ -61,7 +61,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'klsshfz'
                          })
-        self.assertEqual(response.json()['data'], '')
+        self.assertEqual(response.json()['data'], 'default_hfz')
 
 # test zjl
     # invalid student id
@@ -115,7 +115,7 @@ class TestUBind(TestCase):
                          {
                              'openid': 'wzsxzjl'
                          })
-        self.assertEqual(response.json()['data'], '')
+        self.assertEqual(response.json()['data'], 'default_zjl')
 
 # test wzy
     # success
