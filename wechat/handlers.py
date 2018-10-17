@@ -124,7 +124,8 @@ class BookTicketsHandler(WeChatHandler):
 
         with transaction.atomic():
             try:
-                activity = Activity.objects.select_for_update().get(id=self.id)
+                activity = Activity.objects.select_for_update().get(id=self.id,
+                                                                    status=Activity.STATUS_PUBLISHED)
             except:
                 return self.reply_text('未找到该活动!')
 
@@ -169,14 +170,15 @@ class CheckTicketHandler(WeChatHandler):
                 info_menu.append({'Title':ticket.activity.name,
                                   'Description':ticket.activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
+                print(info_menu[-1])
         if len(info_menu) == 0:
             return self.reply_text("你还没有票！")
         return self.reply_news(info_menu)
 
     def url_ticket(self, opn_id, unq_id):
-        print("url_ticket")
-        print(opn_id)
-        print(unq_id)
+        # print("url_ticket")
+        # print(opn_id)
+        # print(unq_id)
         return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
 
 

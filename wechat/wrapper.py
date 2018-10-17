@@ -47,6 +47,7 @@ class WeChatHandler(object):
         )
 
     def reply_text(self, content):
+        print('content: ', content)
         return get_template('text.xml').render(self.get_context(
             Content=content
         ))
@@ -54,6 +55,7 @@ class WeChatHandler(object):
     def reply_news(self, articles):
         if len(articles) > 10:
             self.logger.warn('Reply with %d articles, keep only 10', len(articles))
+        print(len(articles[:10]))
         return get_template('news.xml').render(self.get_context(
             Articles=articles[:10]
         ))
