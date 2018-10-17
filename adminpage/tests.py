@@ -358,19 +358,19 @@ class ActivityCreateTest(TestCase):
         self.assertNotEqual(response2.json()['code'], 0)
         # multiple language test
             # 1
-        # postjson2 = deepcopy(postjsonbs)
-        # postjson2['name'] = '讲中文'
-        # postjson2['description'] = '讲中文'
-        # response2 = c.post(self.url, postjson2)
-        # self.assertEqual(response2.json()['code'], 0)
-        # self.assertEqual(response2.json()['data'], 3)
+        postjson2 = deepcopy(postjsonbs)
+        postjson2['name'] = '讲中文'
+        postjson2['description'] = '讲中文'
+        response2 = c.post(self.url, postjson2)
+        self.assertEqual(response2.json()['code'], 0)
+        self.assertEqual(response2.json()['data'], 3)
             # 2
-        # postjson2 = deepcopy(postjsonbs)
-        # postjson2['name'] = '日本語で話す'
-        # postjson2['description'] = '日本語で話す'
-        # response2 = c.post(self.url, postjson2)
-        # self.assertEqual(response2.json()['code'], 0)
-        # self.assertEqual(response2.json()['data'], 4)
+        postjson2 = deepcopy(postjsonbs)
+        postjson2['name'] = '日本語で話す'
+        postjson2['description'] = '日本語で話す'
+        response2 = c.post(self.url, postjson2)
+        self.assertEqual(response2.json()['code'], 0)
+        self.assertEqual(response2.json()['data'], 4)
 
 class ImageUploadTest(TestCase):
     def setUp(self):

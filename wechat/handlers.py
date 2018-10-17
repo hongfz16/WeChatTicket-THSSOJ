@@ -65,3 +65,11 @@ class BookEmptyHandler(WeChatHandler):
 
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
+
+class BookTicketsHandler(WeChatHandler):
+
+    def check(self):
+        pass
+
+    def handle(self):
+        pass

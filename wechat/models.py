@@ -16,12 +16,12 @@ class User(models.Model):
 
 
 class Activity(models.Model):
-    name = models.CharField(max_length=128)
-    key = models.CharField(max_length=64, db_index=True)
+    name = models.TextField(max_length=128)
+    key = models.TextField(max_length=64)
     description = models.TextField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    place = models.CharField(max_length=256)
+    place = models.TextField(max_length=256)
     book_start = models.DateTimeField(db_index=True)
     book_end = models.DateTimeField(db_index=True)
     total_tickets = models.IntegerField()
