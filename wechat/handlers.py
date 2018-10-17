@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 #
+from datetime import datetime
+from django.utils import timezone
 from wechat.wrapper import WeChatHandler
 from wechat.models import *
 from django.db import transaction
 import uuid
 from WeChatTicket import settings
-
 
 
 class ErrorHandler(WeChatHandler):
@@ -67,6 +68,7 @@ class BookEmptyHandler(WeChatHandler):
 
     def handle(self):
         return self.reply_text(self.get_message('book_empty'))
+
 
 class BookTicketsHandler(WeChatHandler):
 
@@ -133,4 +135,27 @@ class CheckTicketHandler(WeChatHandler):
 
     def url_ticket(self, opn_id, unq_id):
         return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
+
+
+class BookWhatHandler(WeChatHandler):
+
+    def check(self):
+        return self.is_event_click(self.view.event_keys['book_what'])
+
+    def handle(self):
+        # return self.reply_text('click book what')
+        dateNow = timezone.now()
+
+        objs = Activity.objects.filter(
+            book_end__gt = dateNow,
+            status=Activity.STATUS_PUBLISHED
+        ).order_by('start_time')
+        arts = []
+        for obj in objs:
+            arts.append({
+                'Title': obj.name,
+                'Description': obj.description,
+                'Url': self.url_activity(obj.id)
+            })
+        return self.reply_news(arts)
 

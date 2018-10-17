@@ -13,7 +13,7 @@ from django.template.loader import get_template
 
 from WeChatTicket import settings
 from codex.baseview import BaseView
-from wechat.models import User
+from wechat.models import User, Activity, Ticket
 
 
 __author__ = "Epsirom"
@@ -89,6 +89,8 @@ class WeChatHandler(object):
     def url_bind(self):
         return settings.get_url('u/bind', {'openid': self.user.open_id})
 
+    def url_activity(self, aid):
+        return settings.get_url('u/activity', {'id': aid})
 
 class WeChatEmptyHandler(WeChatHandler):
 
