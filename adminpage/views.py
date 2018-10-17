@@ -118,6 +118,8 @@ class activityCreate(APIView):
             if int(self.input['status'])<-1 or int(self.input['status'])>1:
                 raise InputError('status error')
             try:
+                print(self.input['name'])
+                print(self.input['name'].encode('gbk').decode('gbk'))
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                                      description=self.input['description'], pic_url=self.input['picUrl'],
                                                      start_time=datetime.fromtimestamp(float(self.input['startTime'])),
