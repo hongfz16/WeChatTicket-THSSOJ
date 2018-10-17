@@ -88,6 +88,6 @@ class BookWhatHandler(WeChatHandler):
             {
                 'Title': '3',
                 'Description': self.get_message('help_description'),
-                'Url': self.url_help(),
+                'Url': self.url_activity(),
             }
         ])
