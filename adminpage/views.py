@@ -27,7 +27,7 @@ def getCurrentTime():
 def get_index(id, buttons):
     book_header = CustomWeChatView.event_keys['book_header']
     for i in range(len(buttons)):
-        if buttons['key'] == book_header+str(id):
+        if buttons[i]['key'] == book_header+str(id):
             return i+1
     return 0
 
@@ -117,7 +117,6 @@ class activityCreate(APIView):
                 raise InputError('key is too long')
             if int(self.input['status'])<-1 or int(self.input['status'])>1:
                 raise InputError('status error')
-            # if len(self.input['key']) >
             try:
                 new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
                                                      description=self.input['description'], pic_url=self.input['picUrl'],
@@ -142,7 +141,6 @@ class imageUpload(APIView):
         if self.request.user.is_authenticated():
             self.check_input('image')
             ori_content=self.input['image']
-            print(type(ori_content[0]))
 
             cur_path=os.getcwd()
             tgt_path=cur_path+'/static/images'
@@ -152,18 +150,18 @@ class imageUpload(APIView):
                 except:
                     raise ValidateError('create image path error')
             try:
-                image_path = tgt_path + '/' + str(uuid.uuid1()) + '.png'
+                unique_str = str(uuid.uuid1())
+                return_path = '/images/'+unique_str+'.png'
+                image_path = tgt_path + '/' + unique_str + '.png'
                 img_file = open(image_path, 'wb')
                 img_file.write(ori_content[0].read())
                 img_file.close()
-                total_url = get_url(image_path)
+                total_url = get_url(return_path)
                 return total_url
             except:
                 raise ValidateError('save image error')
         else:
-            print('here')
             raise ValidateError('user not logged')
-        print('out')
 
 class activityDetail(APIView):
     def get(self):
