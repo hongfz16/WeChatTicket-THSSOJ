@@ -71,12 +71,16 @@ class BookEmptyHandler(WeChatHandler):
 
 class BounceHandler(WeChatHandler):
     def check(self):
-        input_list = self.input['Content'].split(' ')
-        if input_list[0]=='退票':
-            return True
-        else:
-            return False
+        if 'Content' in self.input:
+            input_list = self.input['Content'].split(' ')
+            if input_list[0]=='退票':
+                return True
+            else:
+                return False
+        return False
+
     def handle(self):
+        print('bounce handler')
         input_list=self.input['Content'].split(' ')
         act_key=input_list[1]
         if len(act_key):
@@ -166,6 +170,8 @@ class CheckTicketHandler(WeChatHandler):
                 info_menu.append({'Title':ticket.activity.name,
                                   'Description':ticket.activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
+        if len(info_menu) == 0:
+            return self.reply_text("你还没有票！")
         return self.reply_news(info_menu)
 
     def url_ticket(self, opn_id, unq_id):
