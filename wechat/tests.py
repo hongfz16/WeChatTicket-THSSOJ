@@ -130,7 +130,6 @@ class CheckTicketTest(TestCase):
 
     def test(self):
         c = Client()
-
         response = c.post(self.Url,
                           trans_dict_to_xml(self.postClickMsg),
                           content_type='text/xml')
