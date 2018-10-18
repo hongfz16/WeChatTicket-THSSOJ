@@ -11,6 +11,7 @@ import threading
 from copy import deepcopy
 # import xml
 
+from django.http.response import HttpResponse
 
 def trans_dict_to_xml(data):
     """
@@ -26,6 +27,16 @@ def trans_dict_to_xml(data):
             v = '<![CDATA[{}]]>'.format(v)
         xml.append('<{key}>{value}</{key}>'.format(key=k, value=v))
     return '<xml>{}</xml>'.format(''.join(xml)).encode('utf8')
+
+
+def origin_trans_str(data):
+    xml = []
+    for k in data.keys():
+        v = data.get(k)
+        if not v.startswith('<![CDATA['):
+            v = '<![CDATA[{}]]>'.format(v)
+        xml.append('<{key}>{value}</{key}>'.format(key=k, value=v))
+    return '{}'.format(''.join(xml)).encode('utf8').decode('utf8')
 
 def getDict(userid, content):
     return {
@@ -264,6 +275,7 @@ class CheckTicketTest(TestCase):
                              }
 
     def test(self):
+        #通过 response.content 访问response内容
         c = Client()
         response = c.post(self.Url,
                           trans_dict_to_xml(self.postClickMsg),
@@ -285,14 +297,12 @@ class CheckTicketTest(TestCase):
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'news.xml')
-        # print("what the hell",str(response))
-        # self.assertContains(response,
-        #                     [{
-        #                         'Title':'gansita',
-        #                         'Description':'gansita',
-        #                         'Url':settings.get_url('u/ticket',{'openid':'ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
-        #                                                            'ticket':unique_id})
-        #                     },])
+        # print("what the hell", response.content)
+        self.assertContains(response, origin_trans_str({'Title':'gansita'}))
+        self.assertContains(response, origin_trans_str({'Description':'gansita'}))
+        self.assertContains(response, origin_trans_str({'Url': settings.get_url('u/ticket',{'openid':self.postClickMsg['FromUserName'],'ticket':unique_id})}))
+
+
 
 
 class BookWhatTest(TestCase):
@@ -421,3 +431,4 @@ class BookTicketTestConcurrent(TransactionTestCase):
                 count = count + 1
         self.assertEqual(count, 10)
         self.assertEqual(Activity.objects.get(name="shadowiterator").remain_tickets, 0)
+
