@@ -1,12 +1,14 @@
 # # Create your tests here.
 #
 from datetime import datetime
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.test import Client
 from django.contrib.auth import get_user_model
 from wechat.models import *
 from wechat.views import CustomWeChatView
 from WeChatTicket import settings
+import threading
+from copy import deepcopy
 # import xml
 
 
@@ -342,3 +344,80 @@ class BookWhatTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'news.xml')
         # self.assertContains(response, "")
+
+
+class BookTicketTestThread(threading.Thread):
+    def __init__(self, threadID, client, Url, postMsg):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.client = client
+        self.url = Url
+        self.postMsg = postMsg
+        self.open_id = self.postMsg['FromUserName'] + str(threadID)
+        self.postMsg['FromUserName']  = self.open_id
+        self.student_id = ('aaaaaaaaa' if self.threadID < 10 else 'aaaaaaaa') + str(self.threadID)
+        User.objects.create(open_id=self.open_id, student_id=self.student_id)
+
+
+    def run(self):
+        # self.bindres = self.client.post('/api/u/user/bind',
+        #                        {
+        #                            'openid': self.open_id,
+        #                            'student_id': self.student_id,
+        #                            'password': 'cnm'
+        #                        })
+        self.response = self.client.post(self.url,
+                                         trans_dict_to_xml(self.postMsg),
+                                         content_type='text/xml')
+
+
+
+
+class BookTicketTestConcurrent(TransactionTestCase):
+    def setUp(self):
+        self.Url = '/wechat'
+        User.objects.create(open_id='thisisopenid', student_id='1234567890')
+        # user = get_user_model()
+        # user.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
+        Activity.objects.create(
+            name='shadowiterator',
+            key='shadowiterator',
+            description='shadowiterator',
+            start_time=datetime(2019, 10, 22, 2, 31, 0),
+            end_time=datetime(2019, 11, 8, 23, 59, 59),
+            place='shadowiterator',
+            book_start=datetime(2018, 10, 10, 8, 8, 8),
+            book_end=datetime(2018, 12, 31, 0, 0, 0),
+            total_tickets=50,
+            status=Activity.STATUS_PUBLISHED,
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
+            remain_tickets=10
+        )
+        self.postTextMsg = {'ToUserName': 'gh_5e0443904265',
+                            'FromUserName': 'thisisopenid',
+                            'CreateTime': '1539793148',
+                            'MsgType': 'text',
+                            'Content': '抢票 shadowiterator',
+                            'MsgId': '6613361214134013343',
+                            }
+
+    def test(self):
+        c = Client()
+        threadpool = []
+        for i in range(50):
+            thread = BookTicketTestThread(i, deepcopy(c), self.Url, deepcopy(self.postTextMsg))
+            threadpool.append(thread)
+            thread.start()
+        for t in threadpool:
+            t.join()
+
+        count = 0
+        for t in threadpool:
+            self.assertEqual(t.response.status_code, 200)
+            self.assertTemplateUsed(t.response, 'text.xml')
+            if t.response.content.decode('utf8').find('恭喜你') == -1:
+                self.assertContains(t.response, '抱歉，没票啦！')
+            else:
+                count = count + 1
+        self.assertEqual(count, 10)
+        self.assertEqual(Activity.objects.get(name="shadowiterator").remain_tickets, 0)

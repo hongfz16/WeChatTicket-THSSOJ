@@ -122,7 +122,7 @@ class BookTicketsHandler(WeChatHandler):
         # print()
         if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
-        student_id = int(self.user.student_id)
+        student_id = self.user.student_id
 
         with transaction.atomic():
             try:
