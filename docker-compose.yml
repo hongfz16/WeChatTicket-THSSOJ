@@ -13,6 +13,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 #      MYSQL_USER: ${MYSQL_USER}
 #      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
   web_8000:
     restart: always
     build: .
@@ -26,43 +27,15 @@ services:
       - .:/code
     expose:
       - "8000"
-    ports:
-      - "8000:8000"
     depends_on:
       - db
 
-  web_8001:
+  nginx:
     restart: always
-    build: .
-    environment:
-      ADMIN: ${ADMIN}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      MPORT: 8001
-    command: ["./wait-for-it.sh", "db:3306", "--", "./start_django.sh"]
-    volumes:
-      - .:/code
-    expose:
-      - "8001"
+    image: nginx:1.11.6-alpine
     ports:
-      - "8001:8001"
-    depends_on:
-      - db
-
-  web_8002:
-    restart: always
-    build: .
-    environment:
-      ADMIN: ${ADMIN}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      MPORT: 8002
-    command: ["./wait-for-it.sh", "db:3306", "--", "./start_django.sh"]
+      - "80:80"
     volumes:
-      - .:/code
-    expose:
-      - "8002"
-    ports:
-      - "8002:8002"
+      - ./nginx_docker/conf.d:/etc/nginx/conf.d
     depends_on:
-      - db
+      - web_8000
