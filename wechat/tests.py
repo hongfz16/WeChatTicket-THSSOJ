@@ -370,17 +370,9 @@ class BookTicketTestThread(threading.Thread):
 
 
     def run(self):
-        # self.bindres = self.client.post('/api/u/user/bind',
-        #                        {
-        #                            'openid': self.open_id,
-        #                            'student_id': self.student_id,
-        #                            'password': 'cnm'
-        #                        })
         self.response = self.client.post(self.url,
                                          trans_dict_to_xml(self.postMsg),
                                          content_type='text/xml')
-
-
 
 
 class BookTicketTestConcurrent(TransactionTestCase):
