@@ -28,8 +28,8 @@ def trans_dict_to_xml(data):
 
 class BookTicketTest(TestCase):
     def setUp(self):
-        self.Url = '/wechat?signature=b632388bc042d3d0dc6e490ef43e053d4dd5db95&timestamp=1539793148&nonce=1217778196&openid=ojM6q1V-l8RyGrzjrirdOdkcwmKQ'
-        User.objects.create(open_id = 'ojM6q1V-l8RyGrzjrirdOdkcwmKQ', student_id = '1234567890')
+        self.Url = '/wechat'
+        User.objects.create(open_id = 'thisisopenid', student_id = '1234567890')
         user = get_user_model()
         user.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
         Activity.objects.create(
@@ -47,14 +47,14 @@ class BookTicketTest(TestCase):
             remain_tickets=50
         )
         self.postTextMsg = {'ToUserName': 'gh_5e0443904265',
-                            'FromUserName': 'ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
+                            'FromUserName': 'thisisopenid',
                             'CreateTime': '1539793148',
                             'MsgType': 'text',
                             'Content': '抢票 wzy',
                             'MsgId': '6613361214134013343',
                             }
         self.postClickMsg = {'ToUserName': 'gh_5e0443904265',
-                            'FromUserName': 'ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
+                            'FromUserName': 'thisisopenid',
                             'CreateTime': '1539793148',
                             'MsgType': 'event',
                             'Event': 'CLICK',
@@ -95,10 +95,10 @@ class BookTicketTest(TestCase):
 
 class CheckTicketTest(TestCase):
     def setUp(self):
-        self.Url = '/wechat?signature=b632388bc042d3d0dc6e490ef43e053d4dd5db95&timestamp=1539793148&nonce=1217778196&openid=ojM6q1V-l8RyGrzjrirdOdkcwmKQ'
-        User.objects.create(open_id='ojM6q1V-l8RyGrzjrirdOdkcwmKQ', student_id='1234567890')
-        user = get_user_model()
-        user.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
+        self.Url = '/wechat'
+        User.objects.create(open_id='thisisopenid', student_id='1234567890')
+        # user = get_user_model()
+        # user.objects.create_superuser('admin', 'admin@myproject.com', 'thisispassword')
         Activity.objects.create(
             name='gansita',
             key='gansita',
@@ -114,14 +114,14 @@ class CheckTicketTest(TestCase):
             remain_tickets=50
         )
         self.postTextMsg = {'ToUserName': 'gh_5e0443904265',
-                            'FromUserName': 'ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
+                            'FromUserName': 'thisisopenid',
                             'CreateTime': '1539793148',
                             'MsgType': 'text',
                             'Content': '抢票 gansita',
                             'MsgId': '6613361214134013343',
                             }
         self.postClickMsg = {'ToUserName': 'gh_5e0443904265',
-                             'FromUserName': 'ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
+                             'FromUserName': 'thisisopenid',
                              'CreateTime': '1539793148',
                              'MsgType': 'event',
                              'Event': 'CLICK',
@@ -150,6 +150,62 @@ class CheckTicketTest(TestCase):
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'news.xml')
-        # print(response.Contains)
+        # print("what the hell",str(response))
         # self.assertContains(response,
-        #                     "[{'Title':'gansita','Description':'gansita','Url':settings.get_url('u/ticket',{'openid':'ojM6q1V-l8RyGrzjrirdOdkcwmKQ','ticket':unique_id})}]")
+        #                     [{
+        #                         'Title':'gansita',
+        #                         'Description':'gansita',
+        #                         'Url':settings.get_url('u/ticket',{'openid':'ojM6q1V-l8RyGrzjrirdOdkcwmKQ',
+        #                                                            'ticket':unique_id})
+        #                     },])
+
+
+class BookWhatTest(TestCase):
+    def setUp(self):
+        self.Url = '/wechat'
+        User.objects.create(open_id='thisisopenid', student_id='1234567890')
+        self.postTextMsg = {'ToUserName': 'gh_5e0443904265',
+                            'FromUserName': 'thisisopenid',
+                            'CreateTime': '1539793148',
+                            'MsgType': 'text',
+                            'Content': '抢啥',
+                            'MsgId': '6613361214134013343',
+                            }
+        self.postClickMsg = {'ToUserName': 'gh_5e0443904265',
+                             'FromUserName': 'thisisopenid',
+                             'CreateTime': '1539793148',
+                             'MsgType': 'event',
+                             'Event': 'CLICK',
+                             'EventKey': 'SERVICE_BOOK_WHAT',
+                             }
+
+    def test(self):
+        c = Client()
+        response = c.post(self.Url,
+                          trans_dict_to_xml(self.postClickMsg),
+                          content_type='text/xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'text.xml')
+        self.assertContains(response, '没有可以订票的活动！')
+
+        Activity.objects.create(
+            name='gansita',
+            key='gansita',
+            description='gansita',
+            start_time=datetime(2018, 10, 20, 2, 31, 0),
+            end_time=datetime(2018, 11, 8, 23, 59, 59),
+            place='hell',
+            book_start=datetime(2018, 10, 10, 8, 8, 8),
+            book_end=datetime(2018, 10, 20, 0, 0, 0),
+            total_tickets=100,
+            status=Activity.STATUS_PUBLISHED,
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
+            remain_tickets=2
+        )
+
+        response = c.post(self.Url,
+                          trans_dict_to_xml(self.postTextMsg),
+                          content_type='text/xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'news.xml')
+        # self.assertContains(response, "")
