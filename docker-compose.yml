@@ -7,6 +7,7 @@ services:
       - "3306"
     volumes:
       - ./db:/var/lib/mysql
+      - ./mysql/docker.cnf:/etc/mysql/conf.d/docker.cnf
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
