@@ -124,7 +124,7 @@ class BookTicketTest(TestCase):
             book_start=datetime(2018, 10, 10, 8, 8, 8),
             book_end=datetime(2018, 10, 11, 0, 0, 0),
             total_tickets=100,
-            status=Activity.STATUS_DELETED,
+            status=Activity.STATUS_PUBLISHED,
             pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=10
         )
@@ -138,7 +138,7 @@ class BookTicketTest(TestCase):
             book_start=datetime(2018, 10, 20, 8, 8, 8),
             book_end=datetime(2018, 10, 21, 0, 0, 0),
             total_tickets=100,
-            status=Activity.STATUS_DELETED,
+            status=Activity.STATUS_PUBLISHED,
             pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=10
         )
