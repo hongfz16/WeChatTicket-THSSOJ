@@ -113,6 +113,8 @@ class BookTicketsHandler(WeChatHandler):
                 if self.is_text("抢票 "+activity.key):
                     self.id = activity.id
                     return True
+            self.id = -1
+            return True
         return False
 
     def handle(self):
@@ -170,7 +172,7 @@ class CheckTicketHandler(WeChatHandler):
                 info_menu.append({'Title':ticket.activity.name,
                                   'Description':ticket.activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
-                print(info_menu[-1])
+                # print(info_menu[-1])
         if len(info_menu) == 0:
             return self.reply_text("你还没有票！")
         return self.reply_news(info_menu)
@@ -185,10 +187,10 @@ class CheckTicketHandler(WeChatHandler):
 class BookWhatHandler(WeChatHandler):
 
     def check(self):
-        return self.is_event_click(self.view.event_keys['book_what'])
+        return self.is_text('抢啥') or self.is_event_click(self.view.event_keys['book_what'])
 
     def handle(self):
-        # return self.reply_text('click book what')
+        print("BookWhatHandler test")
         dateNow = timezone.now()
 
         objs = Activity.objects.filter(
@@ -202,5 +204,7 @@ class BookWhatHandler(WeChatHandler):
                 'Description': obj.description,
                 'Url': self.url_activity(obj.id)
             })
+        if len(arts) == 0:
+            return self.reply_text("没有可以订票的活动！")
         return self.reply_news(arts)
 
