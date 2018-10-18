@@ -11,7 +11,14 @@ class CustomWeChatView(WeChatView):
     lib = WeChatLib(WECHAT_TOKEN, WECHAT_APPID, WECHAT_SECRET)
 
     handlers = [
-        HelpOrSubscribeHandler, UnbindOrUnsubscribeHandler, BindAccountHandler, BookEmptyHandler,
+        HelpOrSubscribeHandler,
+        UnbindOrUnsubscribeHandler,
+        BindAccountHandler,
+        BookEmptyHandler,
+        BookTicketsHandler,
+        CheckTicketHandler,
+        BookWhatHandler,
+        BounceHandler,
     ]
     error_message_handler = ErrorHandler
     default_handler = DefaultHandler
@@ -77,6 +84,7 @@ class CustomWeChatView(WeChatView):
             book_btn['sub_button'].append({
                 'type': 'click',
                 'name': act['name'],
+                # 'dbid': act['id'],
                 'key': cls.event_keys['book_header'] + str(act['id']),
             })
 
