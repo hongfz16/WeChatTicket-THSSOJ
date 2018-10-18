@@ -113,6 +113,8 @@ class BookTicketsHandler(WeChatHandler):
                 if self.is_text("抢票 "+activity.key):
                     self.id = activity.id
                     return True
+            self.id = -1
+            return True
         return False
 
     def handle(self):
