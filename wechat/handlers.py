@@ -89,13 +89,15 @@ class BounceHandler(WeChatHandler):
                     tgt_activity=Activity.objects.get(key=act_key)
                     chosen_ticket=Ticket.objects.get(activity_id=tgt_activity.id,
                                                      student_id=self.user.student_id)
+                    if chosen_ticket.status != Ticket.STATUS_VALID:
+                        return self.reply_text('您的票不可退！')
                     if chosen_ticket:
                         chosen_ticket.delete()
                         tgt_activity.remain_tickets+=1
                         tgt_activity.save()
                         return self.reply_text('退票成功')
                     else:
-                        return self.reply_text('未拥有活动对于票')
+                        return self.reply_text('未拥有该活动对应的票')
                 except:
                     return self.reply_text('未找到对应活动')
         return self.reply_text('请输入正确退票指令')
@@ -109,12 +111,20 @@ class BookTicketsHandler(WeChatHandler):
                 return True
         if 'Content' in self.input and\
                 self.input['Content'].startswith("抢票"):
-            activities = Activity.objects.all()
-            for activity in activities:
-                if self.is_text("抢票 "+activity.key):
-                    self.id = activity.id
-                    return True
-            self.id = -1
+            st = self.input['Content'].split(' ')
+            key = ''
+            for s in st:
+                if s != '抢票' and len(s) > 0:
+                    key += s
+            # activities = Activity.objects.all()
+            # for activity in activities:
+            #     if self.is_text("抢票 "+activity.key):
+            #         self.id = activity.id
+            #         return True
+            try:
+                self.id = Activity.objects.get(key=key).id
+            except:
+                self.id = -1
             return True
         return False
 
@@ -155,7 +165,6 @@ class BookTicketsHandler(WeChatHandler):
 
 class CheckTicketHandler(WeChatHandler):
     def check(self):
-
         return self.is_event_click(self.view.event_keys['get_ticket']) or self.is_text('查票')
 
     def handle(self):
@@ -167,7 +176,8 @@ class CheckTicketHandler(WeChatHandler):
         info_menu = []
 
         if len(stu_id)==10:
-            chosen_tickets=Ticket.objects.filter(student_id=stu_id)
+            chosen_tickets=Ticket.objects.filter(student_id=stu_id,
+                                                 status=Ticket.STATUS_VALID)
             for ticket in chosen_tickets:
                 print(ticket.unique_id)
                 activity = Activity.get_by_id(ticket.activity_id)
