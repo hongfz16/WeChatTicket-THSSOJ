@@ -154,7 +154,6 @@ class BookTicketsHandler(WeChatHandler):
 
 class CheckTicketHandler(WeChatHandler):
     def check(self):
-
         return self.is_event_click(self.view.event_keys['get_ticket']) or self.is_text('查票')
 
     def handle(self):

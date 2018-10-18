@@ -65,7 +65,6 @@ class activityList(APIView):
         print("activityList get")
         if not self.request.user.is_authenticated():
             raise LogicError('Your are offline!')
-
         try:
             actived_activities = Activity.get_nonegtive_status()
         except:
