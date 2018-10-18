@@ -354,6 +354,84 @@ class BookWhatTest(TestCase):
         self.assertContains(response, origin_trans_str({'Description': 'ganshuota'}))
         self.assertContains(response, origin_trans_str({'Url': settings.get_url('u/activity', {'id':act.id})}))
 
+class TakeTicketTest(TestCase):
+    def setUp(self):
+        self.Url = '/wechat'
+        self.student_id = '1234567890'
+        User.objects.create(open_id='thisisopenid', student_id=self.student_id)
+        self.act = Activity.objects.create(
+            name='act',
+            key='act',
+            description='act',
+            start_time=datetime(2018, 10, 20, 2, 31, 0),
+            end_time=datetime(2018, 11, 8, 23, 59, 59),
+            place='jsdechuangshang',
+            book_start=datetime(2018, 10, 10, 8, 8, 8),
+            book_end=datetime(2018, 10, 20, 0, 0, 0),
+            total_tickets=100,
+            status=Activity.STATUS_PUBLISHED,
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
+            remain_tickets=50
+        )
+
+        self.act2 = Activity.objects.create(
+            name='act2',
+            key='act2',
+            description='act2',
+            start_time=datetime(2018, 10, 20, 2, 31, 0),
+            end_time=datetime(2018, 11, 8, 23, 59, 59),
+            place='jsdechuangshang',
+            book_start=datetime(2018, 10, 10, 8, 8, 8),
+            book_end=datetime(2018, 10, 20, 0, 0, 0),
+            total_tickets=100,
+            status=Activity.STATUS_PUBLISHED,
+            pic_url='https://www.pornhub.com/ycdfwzy.png',
+            remain_tickets=50
+        )
+
+        Ticket.objects.create(
+            activity_id=self.act.id,
+            student_id=self.student_id,
+            unique_id='123',
+            status=Ticket.STATUS_VALID
+        )
+        self.postTextMsg = {'ToUserName': 'gh_5e0443904265',
+                            'FromUserName': 'thisisopenid',
+                            'CreateTime': '1539793148',
+                            'MsgType': 'text',
+                            'Content': '取票 act',
+                            'MsgId': '6613361214134013343',
+                            }
+
+    def test(self):
+        c = Client()
+        response = c.post(self.Url,
+                          trans_dict_to_xml(self.postTextMsg),
+                          content_type='text/xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'news.xml')
+        self.assertContains(response, origin_trans_str({'Title':self.act.name}))
+        self.assertContains(response, origin_trans_str({'Description': self.act.description}))
+        self.assertContains(response, origin_trans_str({'Url': settings.get_url('u/ticket',{'openid':self.postTextMsg['FromUserName'],'ticket':'123'})}))
+
+        self.postTextMsg['Content'] = '取票 act_absent'
+        response = c.post(self.Url,
+                          trans_dict_to_xml(self.postTextMsg),
+                          content_type='text/xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'text.xml')
+        self.assertContains(response, '未找到该活动!')
+
+        self.postTextMsg['Content'] = '取票 act2'
+        response = c.post(self.Url,
+                          trans_dict_to_xml(self.postTextMsg),
+                          content_type='text/xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'text.xml')
+        self.assertContains(response, '你没有该活动的票！')
+
+
+
 
 class BookTicketTestThread(threading.Thread):
     def __init__(self, threadID, client, Url, postMsg):

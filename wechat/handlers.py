@@ -116,11 +116,6 @@ class BookTicketsHandler(WeChatHandler):
             for s in st:
                 if s != '抢票' and len(s) > 0:
                     key += s
-            # activities = Activity.objects.all()
-            # for activity in activities:
-            #     if self.is_text("抢票 "+activity.key):
-            #         self.id = activity.id
-            #         return True
             try:
                 self.id = Activity.objects.get(key=key).id
             except:
@@ -168,7 +163,7 @@ class CheckTicketHandler(WeChatHandler):
         return self.is_event_click(self.view.event_keys['get_ticket']) or self.is_text('查票')
 
     def handle(self):
-        print('check ticket')
+        print('handle ticket')
         if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
         opn_id=self.user.open_id
@@ -188,12 +183,6 @@ class CheckTicketHandler(WeChatHandler):
         if len(info_menu) == 0:
             return self.reply_text("你还没有票！")
         return self.reply_news(info_menu)
-
-    def url_ticket(self, opn_id, unq_id):
-        # print("url_ticket")
-        # print(opn_id)
-        # print(unq_id)
-        return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
 
 
 class BookWhatHandler(WeChatHandler):
@@ -220,3 +209,38 @@ class BookWhatHandler(WeChatHandler):
             return self.reply_text("没有可以订票的活动！")
         return self.reply_news(arts)
 
+
+class TakeTicketHandler(WeChatHandler):
+    def check(self):
+        if 'Content' in self.input and \
+                self.input['Content'].startswith("取票"):
+            st = self.input['Content'].split(' ')
+            key = ''
+            for s in st:
+                if s != '取票' and len(s) > 0:
+                    key += s
+            self.key = key
+            return True
+        return False
+
+    def handle(self):
+        print("TakeTicketHandler handle")
+        # print()
+        if self.user.student_id is None:
+            return self.reply_text("请先绑定学号！")
+        student_id = self.user.student_id
+        try:
+            activity = Activity.objects.get(key=self.key)
+        except:
+            return self.reply_text("未找到该活动!")
+
+        try:
+            ticket = Ticket.objects.get(student_id=student_id,
+                                        activity_id=activity.id,
+                                        status=Ticket.STATUS_VALID)
+        except:
+            return self.reply_text("你没有该活动的票！")
+        info = {'Title': activity.name,
+                'Description': activity.description,
+                'Url': self.url_ticket(self.user.open_id, ticket.unique_id)}
+        return self.reply_single_news(info)
