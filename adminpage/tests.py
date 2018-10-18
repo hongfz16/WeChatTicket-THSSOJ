@@ -47,7 +47,7 @@ class ConcurrentTest(TransactionTestCase):
 
     def testPost(self):
         c=Client()
-        print(len(wechatuser.objects.all()))
+        print("totoal users: ", len(wechatuser.objects.all()))
         threadpool = []
         print('concurrenttest')
         for i, dic in enumerate(self.userarr):
