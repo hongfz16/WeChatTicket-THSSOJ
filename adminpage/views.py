@@ -58,6 +58,7 @@ class logoutPage(APIView):
             raise LogicError('logout error!')
         auth.logout(self.request)
 
+
 class activityList(APIView):
 
     def get(self):
@@ -118,8 +119,11 @@ class activityCreate(APIView):
             if int(self.input['status'])<-1 or int(self.input['status'])>1:
                 raise InputError('status error')
             try:
-                new_activity=Activity.objects.create(name=self.input['name'], key=self.input['key'], place=self.input['place'],
-                                                     description=self.input['description'], pic_url=self.input['picUrl'],
+                new_activity=Activity.objects.create(name=self.input['name'],
+                                                     key=self.input['key'],
+                                                     place=self.input['place'],
+                                                     description=self.input['description'],
+                                                     pic_url=self.input['picUrl'],
                                                      start_time=datetime.fromtimestamp(float(self.input['startTime'])),
                                                      end_time=datetime.fromtimestamp(float(self.input['endTime'])),
                                                      book_start=datetime.fromtimestamp(float(self.input['bookStart'])),
@@ -193,7 +197,7 @@ class activityDetail(APIView):
         else: ret['status'] = 0
 
         cnt = 0
-        ress = Ticket.get_by_activity(res)
+        ress = Ticket.get_by_activity_id(res.id)
         for res in ress:
             if res.status == Ticket.STATUS_USED:
                 cnt = cnt+1
@@ -266,9 +270,15 @@ class activityCheckin(APIView):
             if 'ticket' in self.input:
                 try:
                     ticket=Ticket.objects.get(unique_id=self.input['ticket'])
-                    if ticket.activity.name==activity.name:
+                    tactivity=Activity.get_by_id(ticket.activity_id)
+                    if tactivity.name==activity.name:
                         ticket_info['ticket']=ticket.unique_id
                         ticket_info['studentId']=ticket.student_id
+                        if ticket.status==Ticket.STATUS_VALID:
+                            ticket.status=Ticket.STATUS_USED
+                            ticket.save()
+                        else:
+                            raise ValidateError('ticket used')
                         return ticket_info
                     else:
                         raise LogicError('not match')
@@ -277,9 +287,15 @@ class activityCheckin(APIView):
             elif 'studentId' in self.input:
                 try:
                     ticket=Ticket.objects.get(student_id=self.input['studentId'])
-                    if ticket.activity.name==activity.name:
+                    tactivity=Activity.get_by_id(ticket.activity_id)
+                    if tactivity.name==activity.name:
                         ticket_info['ticket']=ticket.unique_id
                         ticket_info['studentId']=ticket.student_id
+                        if ticket.status==Ticket.STATUS_VALID:
+                            ticket.status=Ticket.STATUS_USED
+                            ticket.save()
+                        else:
+                            raise ValidateError('ticket used')
                         return ticket_info
                     else:
                         raise LogicError('not match')

@@ -18,12 +18,14 @@ class StaticFileView(BaseView):
     logger = logging.getLogger('Static')
 
     def get_file(self, fpath):
+        print('get_file')
         if os.path.isfile(fpath):
             return open(fpath, 'rb').read()
         else:
             return None
 
     def do_dispatch(self, *args, **kwargs):
+        print('static: do_dispatch')
         if not settings.DEBUG:
             self.logger.warn('Please use nginx/apache to serve static files in production!')
             raise Http404()

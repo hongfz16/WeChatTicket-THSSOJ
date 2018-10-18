@@ -272,7 +272,7 @@ class TestUTicket(TestCase):
             description = 'zyw',
             start_time = datetime(1999, 9, 11, 2, 31, 0),
             end_time = datetime(2000, 11, 8, 23, 59, 59),
-            place = 'zsdechuangshang',
+            place = 'jsdechuangshang',
             book_start = datetime(1997, 12, 9, 8, 8, 8),
             book_end = datetime(2000, 11, 8, 0, 0, 0),
             total_tickets = 100,
@@ -319,35 +319,40 @@ class TestUTicket(TestCase):
         Ticket.objects.create(
             student_id = '1234567890',
             unique_id = '123',
-            activity = Activity.objects.get(id = self.id1),
+            # activity = Activity.objects.get(id = self.id1),
+            activity_id = self.id1,
             status = 0
         )
     # ticket2: success, a = 2, s = 0
         Ticket.objects.create(
             student_id = 'x234567890',
             unique_id = 'xyz',
-            activity = Activity.objects.get(id = self.id2),
+            # activity = Activity.objects.get(id = self.id2),
+            activity_id = self.id2,
             status = 0
         )
     # ticket3: success, a = 3, s = 0
         Ticket.objects.create(
             student_id = '1234567890',
             unique_id = 'abc',
-            activity = Activity.objects.get(id = self.id3),
+            # activity = Activity.objects.get(id = self.id3),
+            activity_id = self.id3,
             status = 0
         )
     # ticket4: success, a = 1, s = 1
         Ticket.objects.create(
             student_id = 'x234567890',
             unique_id = 'dde',
-            activity = Activity.objects.get(id = self.id1),
+            # activity = Activity.objects.get(id = self.id1),
+            activity_id = self.id1,
             status = 1
         )
     # ticket5: success, a = 1, s = 2
         Ticket.objects.create(
             student_id = '1234567890',
             unique_id = 'rng',
-            activity = Activity.objects.get(id = self.id1),
+            # activity = Activity.objects.get(id = self.id1),
+            activity_id = self.id1,
             status = 2
         )
 
@@ -413,7 +418,9 @@ class TestUTicket(TestCase):
                          })
         js = response.json()['data']
         objT = Ticket.objects.get(unique_id = '123')
-        objA = objT.activity
+        # objA = objT.activity
+        print("objT: ", objT.activity_id, type(objT.activity_id))
+        objA = Activity.get_by_id(objT.activity_id)
         #print(type(js))
         print('right json', response.json()['msg'])
         self.assertEqual(js['activityName'], objA.name)

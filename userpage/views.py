@@ -67,18 +67,31 @@ class TicketDetail(APIView):
             if not isinstance(unq_id, str):
                 raise InputError('wrong input type')
             try:
-                ticket=Ticket.objects.get(unique_id=unq_id)
+                ticket = Ticket.objects.get(unique_id=unq_id)
+                activity = Activity.get_by_id(ticket.activity_id)
                 std_id = User.objects.get(open_id=opn_id).student_id
                 # if self.input['openid']=='':
                 #     print('why this works ', User.objects.get(open_id=opn_id))
 
+                # if ticket.student_id == std_id:
+                #     ticket_detail['activityName'] = ticket.activity.name
+                #     ticket_detail['place'] = ticket.activity.place
+                #     ticket_detail['activityKey'] = ticket.activity.key
+                #     ticket_detail['uniqueId'] =ticket.unique_id
+                #     ticket_detail['startTime'] = int(ticket.activity.start_time.timestamp())
+                #     ticket_detail['endTime'] = int(ticket.activity.end_time.timestamp())
+                #     ticket_detail['currentTime'] = int(timezone.now().timestamp())
+                #     ticket_detail['status'] = ticket.status
+                #     return ticket_detail
+                # else:
+                #     raise BaseError(code=4, msg='not match')
                 if ticket.student_id == std_id:
-                    ticket_detail['activityName'] = ticket.activity.name
-                    ticket_detail['place'] = ticket.activity.place
-                    ticket_detail['activityKey'] = ticket.activity.key
+                    ticket_detail['activityName'] = activity.name
+                    ticket_detail['place'] = activity.place
+                    ticket_detail['activityKey'] = activity.key
                     ticket_detail['uniqueId'] =ticket.unique_id
-                    ticket_detail['startTime'] = int(ticket.activity.start_time.timestamp())
-                    ticket_detail['endTime'] = int(ticket.activity.end_time.timestamp())
+                    ticket_detail['startTime'] = int(activity.start_time.timestamp())
+                    ticket_detail['endTime'] = int(activity.end_time.timestamp())
                     ticket_detail['currentTime'] = int(timezone.now().timestamp())
                     ticket_detail['status'] = ticket.status
                     return ticket_detail

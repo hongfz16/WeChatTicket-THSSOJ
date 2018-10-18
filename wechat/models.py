@@ -16,12 +16,12 @@ class User(models.Model):
 
 
 class Activity(models.Model):
-    name = models.CharField(max_length=128)
-    key = models.CharField(max_length=64, db_index=True)
+    name = models.TextField(max_length=128, default='', primary_key=False)
+    key = models.TextField(max_length=64, default='', primary_key=False)
     description = models.TextField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    place = models.CharField(max_length=256)
+    place = models.TextField(max_length=256, default='', primary_key=False)
     book_start = models.DateTimeField(db_index=True)
     book_end = models.DateTimeField(db_index=True)
     total_tickets = models.IntegerField()
@@ -67,7 +67,8 @@ class Activity(models.Model):
 class Ticket(models.Model):
     student_id = models.CharField(max_length=32, db_index=True)
     unique_id = models.CharField(max_length=64, db_index=True, unique=True)
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    # activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    activity_id = models.IntegerField()
     status = models.IntegerField()
 
     STATUS_CANCELLED = 0
@@ -75,8 +76,8 @@ class Ticket(models.Model):
     STATUS_USED = 2
 
     @classmethod
-    def get_by_activity(cls, act):
+    def get_by_activity_id(cls, id):
         try:
-            return cls.objects.filter(activity=act)
+            return cls.objects.filter(activity_id=id)
         except:
             raise LogicError('get ticket by activity error!')
