@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
+from django.test import TestCase,TransactionTestCase
 from django.test import Client
 from django.contrib.auth import get_user_model
 from wechat.models import Activity, Ticket
@@ -9,6 +9,56 @@ from django.utils import timezone
 import base64
 from copy import deepcopy
 import pickle
+
+import threading
+
+class UserRequestAgent(threading.Thread):
+    def __init__(self, threadID, open_id, student_id, client):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.open_id = open_id
+        self.student_id = student_id
+        self.client = client
+        print(open_id, student_id)
+    def run(self):
+        # print ("开始线程：" + self.username)
+        # print ("退出线程：" + self.username)
+        response = self.client.post('/api/u/user/bind',
+               {
+                    'openid': self.open_id,
+                    'student_id': self.student_id,
+                    'password': 'zstql'
+                })
+        self.logincode = response.json()['code']
+
+class ConcurrentTest(TransactionTestCase):
+    def setUp(self):
+        self.userarr = []
+        for i in range(50):
+            info = dict()
+            info['open_id'] = 'wechatuser_'+str(i)
+            info['student_id'] = str(1000000000 + i)
+            self.userarr.append(info)
+        for dic in self.userarr:
+            wechatuser.objects.create(open_id=dic['open_id'], student_id=dic['student_id'])
+        # print('printfromconcurrent')
+        # for user in wechatuser.objects.all():
+        #     print(user.open_id)
+
+    def testPost(self):
+        c=Client()
+        print("totoal users: ", len(wechatuser.objects.all()))
+        threadpool = []
+        print('concurrenttest')
+        for i, dic in enumerate(self.userarr):
+            thread = UserRequestAgent(i, dic['open_id'], dic['student_id'],deepcopy(c))
+            threadpool.append(thread)
+            thread.start()
+        for t in threadpool:
+            t.join()
+        for i, t in enumerate(threadpool):
+            self.assertEqual(t.logincode, 0)
+            print('finish '+str(i))
 
 class LoginTest(TestCase):
     def setUp(self):
