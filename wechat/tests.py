@@ -141,7 +141,8 @@ class BookTicketTest(TestCase):
             status=Activity.STATUS_DELETED,
             pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=10
-        )    def test(self):
+        )
+        def test(self):
         c = Client()
 
         c.post('/api/a/login',
