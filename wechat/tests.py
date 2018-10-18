@@ -142,7 +142,8 @@ class BookTicketTest(TestCase):
             pic_url='https://www.pornhub.com/ycdfwzy.png',
             remain_tickets=10
         )
-        def test(self):
+
+    def test(self):
         c = Client()
 
         c.post('/api/a/login',
@@ -165,7 +166,7 @@ class BookTicketTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'text.xml')
         self.assertEqual(Activity.objects.get(name = 'ycdfwzy').remain_tickets, 49)
-        tkt = Ticket.objects.get(self.stuid)
+        tkt = Ticket.objects.get(student_id = self.stuid)
         self.assertNotEqual(tkt, None)
         self.assertEqual(tkt.status, Ticket.STATUS_VALID)
 
@@ -177,7 +178,7 @@ class BookTicketTest(TestCase):
         self.assertContains(response, '你已经抢到票了，请不要重复抢票！')
 
         #remain = 0
-        response = c.post(self.url,
+        response = c.post(self.Url,
                           trans_dict_to_xml(getDict(self.userid, '抢票 act_remain0')),
                           content_type = 'text/xml')
         self.assertEqual(response.status_code, 200)
@@ -185,7 +186,7 @@ class BookTicketTest(TestCase):
         self.assertContains(response, '抱歉，没票啦！')
 
         #deleted
-        response = c.post(self.url,
+        response = c.post(self.Url,
                           trans_dict_to_xml(getDict(self.userid, '抢票 act_deleted')),
                           content_type = 'text/xml')
         self.assertEqual(response.status_code, 200)
@@ -193,7 +194,7 @@ class BookTicketTest(TestCase):
         self.assertContains(response, '未找到该活动')
 
         #saved
-        response = c.post(self.url,
+        response = c.post(self.Url,
                           trans_dict_to_xml(getDict(self.userid, '抢票 act_saved')),
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
@@ -201,7 +202,7 @@ class BookTicketTest(TestCase):
         self.assertContains(response, '未找到该活动!')
 
         #act not exsist
-        response = c.post(self.url,
+        response = c.post(self.Url,
                           trans_dict_to_xml(getDict(self.userid, '抢票 act_absent')),
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
@@ -209,7 +210,7 @@ class BookTicketTest(TestCase):
         self.assertContains(response, '未找到该活动!')
 
         #overdue
-        response = c.post(self.url,
+        response = c.post(self.Url,
                           trans_dict_to_xml(getDict(self.userid, '抢票 act_overdue')),
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
@@ -217,7 +218,7 @@ class BookTicketTest(TestCase):
         self.assertContains(response, '抢票已结束!')
 
         #haven't start
-        response = c.post(self.url,
+        response = c.post(self.Url,
                           trans_dict_to_xml(getDict(self.userid, '抢票 act_nstart')),
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
