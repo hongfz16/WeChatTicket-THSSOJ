@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7.19
+    expose:
+      - "3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#      MYSQL_USER: ${MYSQL_USER}
+#      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  web_8000:
+    restart: always
+    build: .
+    environment:
+      ADMIN: ${ADMIN}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      MPORT: 8000
+    command: ["./wait-for-it.sh", "db:3306", "--", "./start_django.sh"]
+    volumes:
+      - .:/code
+    expose:
+      - "8000"
+    depends_on:
+      - db
+
+  nginx:
+    restart: always
+    image: nginx:1.11.6-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx_docker/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - web_8000

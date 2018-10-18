@@ -340,7 +340,7 @@ class activityMenu(APIView):
             acts = [int(self.input['idarr']), ]
         else:
             raise LogicError('logical error!')
-
+        print("acts: ", acts)
         try:
             res = []
             for act in acts:
