@@ -94,6 +94,9 @@ class WeChatHandler(object):
     def url_activity(self, aid):
         return settings.get_url('u/activity', {'id': aid})
 
+    def url_ticket(self, opn_id, unq_id):
+        return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
+
 class WeChatEmptyHandler(WeChatHandler):
 
     def check(self):

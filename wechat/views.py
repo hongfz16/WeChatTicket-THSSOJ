@@ -19,6 +19,7 @@ class CustomWeChatView(WeChatView):
         CheckTicketHandler,
         BookWhatHandler,
         BounceHandler,
+        TakeTicketHandler,
     ]
     error_message_handler = ErrorHandler
     default_handler = DefaultHandler
