@@ -9,6 +9,7 @@ from wechat.views import CustomWeChatView
 from WeChatTicket import settings
 # import xml
 
+from django.http.response import HttpResponse
 
 def trans_dict_to_xml(data):
     """
@@ -24,6 +25,15 @@ def trans_dict_to_xml(data):
             v = '<![CDATA[{}]]>'.format(v)
         xml.append('<{key}>{value}</{key}>'.format(key=k, value=v))
     return '<xml>{}</xml>'.format(''.join(xml)).encode('utf8')
+
+def origin_trans(data):
+    xml = []
+    for k in data.keys():
+        v = data.get(k)
+        if not v.startswith('<![CDATA['):
+            v = '<![CDATA[{}]]>'.format(v)
+        xml.append('<{key}>{value}</{key}>'.format(key=k, value=v))
+    return '{}'.format(''.join(xml)).encode('utf8')
 
 
 class BookTicketTest(TestCase):
@@ -150,6 +160,12 @@ class CheckTicketTest(TestCase):
                           content_type='text/xml')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'news.xml')
-        # print(response.Contains)
+        # print("what the hell", response.content)
         # self.assertContains(response,
         #                     "[{'Title':'gansita','Description':'gansita','Url':settings.get_url('u/ticket',{'openid':'ojM6q1V-l8RyGrzjrirdOdkcwmKQ','ticket':unique_id})}]")
+
+        # out_xml=origin_trans({'Title':'gansita','Description':'gansita','PicUrl':'','Url':settings.get_url('u/ticket',{'openid':'ojM6q1V-l8RyGrzjrirdOdkcwmKQ','ticket':unique_id})})
+        #
+        # print(out_xml.decode('utf8'))
+        # self.assertContains(response, '<Description><![CDATA[gansita]]></Description>')
+
