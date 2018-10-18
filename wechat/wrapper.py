@@ -47,6 +47,7 @@ class WeChatHandler(object):
         )
 
     def reply_text(self, content):
+        print('content: ', content)
         return get_template('text.xml').render(self.get_context(
             Content=content
         ))
@@ -54,6 +55,7 @@ class WeChatHandler(object):
     def reply_news(self, articles):
         if len(articles) > 10:
             self.logger.warn('Reply with %d articles, keep only 10', len(articles))
+        print(articles[:10])
         return get_template('news.xml').render(self.get_context(
             Articles=articles[:10]
         ))
@@ -201,10 +203,12 @@ class WeChatView(BaseView):
 
     def _check_signature(self):
         query = self.request.GET
-        return self.lib.check_signature(query['signature'], query['timestamp'], query['nonce'])
+        ck_res = self.lib.check_signature(query['signature'], query['timestamp'], query['nonce'])
+        print('check_Res: ', ck_res)
+        return ck_res
 
     def do_dispatch(self, *args, **kwargs):
-        print("si-response: ", self.response.body)
+        print("si-requets: ", self.request.body)
         if not settings.IGNORE_WECHAT_SIGNATURE and not self._check_signature():
             self.logger.error('Check WeChat signature failed')
             raise Http404()
@@ -216,6 +220,7 @@ class WeChatView(BaseView):
             return self.http_method_not_allowed()
 
     def handle_wechat_msg(self):
+        print('handle_wechat_msg')
         msg = self.parse_msg_xml(ET.fromstring(self.request.body))
         if 'FromUserName' not in msg:
             return self.error_message_handler(self, msg, None).handle()
@@ -234,6 +239,7 @@ class WeChatView(BaseView):
 
     @classmethod
     def parse_msg_xml(cls, root_elem):
+        print('parse_msg_xml')
         msg = dict()
         if root_elem.tag == 'xml':
             for child in root_elem:

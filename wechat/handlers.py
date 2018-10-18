@@ -113,6 +113,8 @@ class BookTicketsHandler(WeChatHandler):
                 if self.is_text("抢票 "+activity.key):
                     self.id = activity.id
                     return True
+            self.id = -1
+            return True
         return False
 
     def handle(self):
@@ -120,11 +122,12 @@ class BookTicketsHandler(WeChatHandler):
         # print()
         if self.user.student_id is None:
             return self.reply_text("请先绑定学号！")
-        student_id = int(self.user.student_id)
+        student_id = self.user.student_id
 
         with transaction.atomic():
             try:
-                activity = Activity.objects.select_for_update().get(id=self.id)
+                activity = Activity.objects.select_for_update().get(id=self.id,
+                                                                    status=Activity.STATUS_PUBLISHED)
             except:
                 return self.reply_text('未找到该活动!')
 
@@ -169,24 +172,25 @@ class CheckTicketHandler(WeChatHandler):
                 info_menu.append({'Title':ticket.activity.name,
                                   'Description':ticket.activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
+                # print(info_menu[-1])
         if len(info_menu) == 0:
             return self.reply_text("你还没有票！")
         return self.reply_news(info_menu)
 
     def url_ticket(self, opn_id, unq_id):
-        print("url_ticket")
-        print(opn_id)
-        print(unq_id)
+        # print("url_ticket")
+        # print(opn_id)
+        # print(unq_id)
         return settings.get_url('u/ticket', {'openid':opn_id, 'ticket':unq_id})
 
 
 class BookWhatHandler(WeChatHandler):
 
     def check(self):
-        return self.is_event_click(self.view.event_keys['book_what'])
+        return self.is_text('抢啥') or self.is_event_click(self.view.event_keys['book_what'])
 
     def handle(self):
-        # return self.reply_text('click book what')
+        print("BookWhatHandler test")
         dateNow = timezone.now()
 
         objs = Activity.objects.filter(
@@ -200,5 +204,7 @@ class BookWhatHandler(WeChatHandler):
                 'Description': obj.description,
                 'Url': self.url_activity(obj.id)
             })
+        if len(arts) == 0:
+            return self.reply_text("没有可以订票的活动！")
         return self.reply_news(arts)
 
