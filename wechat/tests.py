@@ -7,7 +7,7 @@ from wechat.models import User
 
 class TryTest(TestCase):
     def setUp(self):
-        User.objects.create(open_id = 'ycdfwzy', student_id = )
+        User.objects.create(open_id = 'ycdfwzy', student_id = '1234567890')
 
     def testBind(self):
         c = Client()
