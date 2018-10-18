@@ -197,7 +197,7 @@ class activityDetail(APIView):
         else: ret['status'] = 0
 
         cnt = 0
-        ress = Ticket.get_by_activity(res)
+        ress = Ticket.get_by_activity_id(res.id)
         for res in ress:
             if res.status == Ticket.STATUS_USED:
                 cnt = cnt+1
@@ -270,7 +270,8 @@ class activityCheckin(APIView):
             if 'ticket' in self.input:
                 try:
                     ticket=Ticket.objects.get(unique_id=self.input['ticket'])
-                    if ticket.activity.name==activity.name:
+                    tactivity=Activity.get_by_id(ticket.activity_id)
+                    if tactivity.name==activity.name:
                         ticket_info['ticket']=ticket.unique_id
                         ticket_info['studentId']=ticket.student_id
                         if ticket.status==Ticket.STATUS_VALID:
@@ -286,7 +287,8 @@ class activityCheckin(APIView):
             elif 'studentId' in self.input:
                 try:
                     ticket=Ticket.objects.get(student_id=self.input['studentId'])
-                    if ticket.activity.name==activity.name:
+                    tactivity=Activity.get_by_id(ticket.activity_id)
+                    if tactivity.name==activity.name:
                         ticket_info['ticket']=ticket.unique_id
                         ticket_info['studentId']=ticket.student_id
                         if ticket.status==Ticket.STATUS_VALID:

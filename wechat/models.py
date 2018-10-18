@@ -67,7 +67,8 @@ class Activity(models.Model):
 class Ticket(models.Model):
     student_id = models.CharField(max_length=32, db_index=True)
     unique_id = models.CharField(max_length=64, db_index=True, unique=True)
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    # activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    activity_id = models.IntegerField()
     status = models.IntegerField()
 
     STATUS_CANCELLED = 0
@@ -75,8 +76,8 @@ class Ticket(models.Model):
     STATUS_USED = 2
 
     @classmethod
-    def get_by_activity(cls, act):
+    def get_by_activity_id(cls, id):
         try:
-            return cls.objects.filter(activity=act)
+            return cls.objects.filter(activity_id=id)
         except:
             raise LogicError('get ticket by activity error!')

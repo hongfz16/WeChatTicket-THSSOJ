@@ -632,7 +632,7 @@ class CheckinTest(TestCase):
         wechatuser.objects.create(open_id = 'ycdfwzy', student_id='1234567890')
         Ticket.objects.create(student_id = '1234567890',
                               unique_id = 'thisisauniqueid',
-                              activity = Activity.objects.get(name='testac1'),
+                              activity_id = Activity.objects.get(name='testac1').id,
                               status = 1)
 
     def testPost(self):

@@ -87,7 +87,8 @@ class BounceHandler(WeChatHandler):
             with transaction.atomic():
                 try:
                     tgt_activity=Activity.objects.get(key=act_key)
-                    chosen_ticket=Ticket.objects.get(activity=tgt_activity, student_id=self.user.student_id)
+                    chosen_ticket=Ticket.objects.get(activity_id=tgt_activity.id,
+                                                     student_id=self.user.student_id)
                     if chosen_ticket:
                         chosen_ticket.delete()
                         tgt_activity.remain_tickets+=1
@@ -137,7 +138,7 @@ class BookTicketsHandler(WeChatHandler):
                 return self.reply_text('抢票已结束!')
 
             ticket = Ticket.objects.filter(student_id=student_id,
-                                           activity=activity)
+                                           activity_id=activity.id)
             if len(ticket) > 0:
                 return self.reply_text('你已经抢到票了，请不要重复抢票！')
             if activity.remain_tickets <= 0:
@@ -147,7 +148,7 @@ class BookTicketsHandler(WeChatHandler):
 
         Ticket.objects.create(student_id=student_id,
                               unique_id=str(uuid.uuid1()),
-                              activity=activity,
+                              activity_id=activity.id,
                               status=Ticket.STATUS_VALID)
         return self.reply_text('恭喜你！抢到《'+activity.name+'》的票啦~')
 
@@ -169,8 +170,9 @@ class CheckTicketHandler(WeChatHandler):
             chosen_tickets=Ticket.objects.filter(student_id=stu_id)
             for ticket in chosen_tickets:
                 print(ticket.unique_id)
-                info_menu.append({'Title':ticket.activity.name,
-                                  'Description':ticket.activity.description,
+                activity = Activity.get_by_id(ticket.activity_id)
+                info_menu.append({'Title':activity.name,
+                                  'Description':activity.description,
                                   'Url':self.url_ticket(opn_id, ticket.unique_id)})
                 # print(info_menu[-1])
         if len(info_menu) == 0:
