@@ -193,7 +193,7 @@ class BookWhatHandler(WeChatHandler):
     def handle(self):
         print("BookWhatHandler test")
 #         dateNow = timezone.now()
-        dateNow = datetiem.fromtimestamp(float(self.input['CreateTime']))
+        dateNow = datetime.fromtimestamp(float(self.input['CreateTime']))
 
         objs = Activity.objects.filter(
             book_end__gt = dateNow,
